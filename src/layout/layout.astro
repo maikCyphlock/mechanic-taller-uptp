@@ -1,0 +1,21 @@
+---
+import { PWA } from "webapp-astro-pwa";
+import Navbar from "@/components/navbar.svelte";
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/light.css">
+		<title>Astro</title>
+		<PWA />
+	</head>
+	<body>
+	<Navbar client:idle/>
+		<slot/>
+	
+	</body>
+</html>
