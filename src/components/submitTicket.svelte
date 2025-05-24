@@ -3,7 +3,7 @@
   // Form fields
   let name = '';
   let phone = '';
-
+  let cedula = '';
   // vehicleType will now be bound to the value of the selected radio button
   let vehicleType = '';
 
@@ -18,11 +18,11 @@
 
   // --- Predefined Options ---
   const vehicleOptions = [
-    { value: 'Automóvil', icon: '🚗' },
-    { value: 'Camioneta', icon: '🚚' },
-    { value: 'Camión', icon: '🚛' },
-    { value: 'Motocicleta', icon: '🏍️' },
-    { value: 'Otro', icon: '❓' }
+    { value: 'automovil', icon: '🚗' },
+    { value: 'camioneta', icon: '🚚' },
+    { value: 'camion', icon: '🚛' },
+    { value: 'motocicleta', icon: '🏍️' },
+    { value: 'otro', icon: '❓' }
   ];
 
   const commonIssues = [
@@ -101,6 +101,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
+          cedula,
           phone,
           vehicleDetails: {
             type: vehicleType,
@@ -150,6 +151,10 @@
         <div class="form-group">
           <label for="phone">Teléfono <span class="required">*</span></label>
           <input type="tel" id="phone" bind:value={phone} placeholder="Ej: 04121234567" required aria-required="true" />
+        </div>
+         <div class="form-group">
+          <label for="cedula">Cédula <span class="required">*</span></label>
+          <input type="number" id="cedula" bind:value={cedula} placeholder="Ej: 30054144" required aria-required="true" />
         </div>
       </div>
     {/if}
