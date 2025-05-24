@@ -1,0 +1,15 @@
+<script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+
+<form
+  hx-target="#response" 
+  hx-post="/api/vehiculo/tipo/create"
+
+  hx-ext="json-enc"
+>
+  <input type="text" name="name" placeholder="Name" required><br>
+  <textarea name="descripcion" placeholder="escribe una descripcion corta del vehiculo" required></textarea><br>
+  <button type="submit">Send</button>
+</form>
+
+<div id="response"></div>
