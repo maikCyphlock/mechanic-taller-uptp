@@ -1,35 +1,25 @@
 import type { APIRoute } from 'astro';
 import { db } from '@/lib/db';
-// Si tienes un esquema de tickets, impórtalo aquí
-import { ticket } from '@/db/schema';
+import { ticket, statusTicketEnum, prioridadTicketEnum, client as clientSchema } from '@/db/schema';
+import { type client, vehicle, type ticket as ticketType, vehicleIssue } from '@/db/schema';
 import { randomUUID } from 'crypto';
+import { eq } from 'drizzle-orm';
 
-type Ticket = {
-    name: string;
-    phone: string;
-    vehicleDetails: {
-        type: string;
-        [key: string]: any;
-    };
-    issueType: string;
-    issueDescription: string;
-    submissionDate?: string;
-}
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    const body:Ticket = await request.json();
+    const body = await request.json();
     const {
+      cedula,
       name,
       phone,
       vehicleDetails,
       issueType,
-      issueDescription,
-      submissionDate
+      issueDescription
     } = body;
     console.log('Datos recibidos:', body);
     // Validación básica
-    if (!name || !phone || !vehicleDetails || !issueType || !issueDescription) {
+    if ( !name || !phone ) {
       return new Response(
         JSON.stringify({ error: 'Todos los campos son obligatorios.' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
@@ -38,21 +28,59 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // Obtener el userId del usuario autenticado
     const userId = locals?.user?.id || null;
+    const vehicleID = randomUUID();
+    await db.transaction(async (tx) => {
+      let clientID: string;
 
-    await db.insert(ticket).values({
-      id: randomUUID(),
-      title: name,
-      name,
-      phone,
-      vehicleType: vehicleDetails?.type || '',
-      vehicleDetails: JSON.stringify(vehicleDetails),
-      issueType,
-      issueDescription,
-      description: issueDescription,
-      submissionDate: submissionDate ? new Date(submissionDate) : new Date(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userId,
+      // Buscar si el cliente ya existe por la cedula
+      let existingClientResult = await tx.select().from(clientSchema).where(
+        eq(clientSchema.cedula, cedula)
+      );
+      const existingClient = existingClientResult[0] || null;
+
+      if (existingClient) {
+        // Si existe, usa su id
+        clientID = existingClient.id;
+      } else {
+        clientID = randomUUID();
+        await tx.insert(clientSchema).values({
+          id: clientID,
+          name: name,
+          phone: phone,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          email: undefined,
+          address: undefined,
+          cedula: cedula,
+        } as typeof clientSchema.$inferInsert);
+      }
+      await tx.insert(vehicle).values({
+        id: vehicleID,
+        type: vehicleDetails.type,
+        ownerId: clientID,
+      });
+
+      await tx.insert(vehicleIssue).values({
+        id: randomUUID(),
+        vehicleId: vehicleID,
+        severity: 3,
+        status: 'abierto',
+        issueDescription: issueDescription,
+        issueType: issueType,
+      });
+
+      await tx.insert(ticket).values({
+        id: randomUUID(),
+        vehicleId: vehicleID, // Placeholder value
+        userId: userId,
+        assignedTo: userId,
+        clientId: clientID,
+        status: statusTicketEnum.enumValues[0], // Asignar el primer valor del enum como estado inicial
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        short_description: issueDescription,
+        priority: prioridadTicketEnum.enumValues[1], // Asignar el segundo valor del enum como prioridad inicial
+      } as typeof ticket.$inferInsert);
     });
 
     // Simulación de éxito
