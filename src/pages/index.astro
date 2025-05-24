@@ -2,8 +2,25 @@
 import Layout from "../layout/layout.astro"
 import SubmitTicket from "../components/submitTicket.svelte"
 
+const isEmailVerified = Astro.locals.user.emailVerified
+console.log("isEmailVerified",isEmailVerified )
 ---
-<Layout >
-		<SubmitTicket client:load   />
-
+<Layout>
+	{isEmailVerified ? (
+		<SubmitTicket client:load />
+	) : (
+		<h1>Debes verificar tu email para poder abrir un ticket. {}</h1>
+		<code>consulta con el administrador para que apruebe tu usuario</code>
+	)}
 </Layout>
+
+<style>
+h2 {
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+    color: #333;
+    margin: 20px 0;
+}
+
+</style>
