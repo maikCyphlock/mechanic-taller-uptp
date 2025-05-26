@@ -2,59 +2,13 @@
     import { onMount } from 'svelte';
     import TicketList from './TicketList.svelte';
     import TicketDetailEdit from './TicketDetailEdit.svelte';
+
   
     let tickets = [];
+    let user = { name: 'Mecánico Asignado' }; // Simulación de usuario asignado, podría venir de un store o prop
     let selectedTicket = null;
     let currentView = 'list'; // 'list' or 'detail'
     let searchTerm = '';
-  
-    // Datos simulados (en una app real, esto vendría de una API)
-    const mockTickets = [
-      {
-        id: 'TKT-2025-001',
-        name: 'Ana García',
-        email: 'ana.garcia@email.com',
-        phone: '04161234567',
-        vehicleDetails: {
-          type: 'Automóvil',
-          brand: 'Chevrolet',
-          model: 'Spark',
-          year: '2015',
-          mileage: '85000'
-        },
-        issueType: 'Problemas de motor',
-        issueDescription: 'El carro no enciende por las mañanas, hay que darle varias veces.',
-        submissionDate: new Date(2025, 4, 15, 9, 30).toISOString(), // Mes es 0-indexado
-        status: 'Pendiente de Diagnóstico',
-        mechanicNotes: '',
-        detailedDiagnosis: '',
-        servicesPerformed: '', // Simplificado a textarea
-        partsUsed: '', // Simplificado a textarea
-        laborHours: 0,
-      },
-      {
-        id: 'TKT-2025-002',
-        name: 'Carlos Rodríguez',
-        email: '',
-        phone: '04247654321',
-        vehicleDetails: {
-          type: 'Camioneta',
-          brand: 'Toyota',
-          model: 'Hilux',
-          year: '2020',
-          mileage: '40000'
-        },
-        issueType: 'Frenos defectuosos',
-        issueDescription: 'Suena un chillido al frenar y el pedal se siente esponjoso.',
-        submissionDate: new Date(2025, 4, 16, 11, 0).toISOString(),
-        status: 'En Reparación',
-        mechanicNotes: 'Pastillas de freno delanteras desgastadas. Se verificarán discos.',
-        detailedDiagnosis: 'Desgaste severo de pastillas de freno delanteras. Discos rectificables.',
-        servicesPerformed: 'Reemplazo de pastillas de freno delanteras.\nRectificación de discos delanteros.\nPurga de sistema de frenos.',
-        partsUsed: '1 juego de pastillas de freno delanteras (Código: PF-TYH-01)\nLíquido de frenos DOT4 500ml',
-        laborHours: 2.5,
-      }
-    ];
   
     const ticketStatuses = [
       'Pendiente de Diagnóstico',
@@ -69,9 +23,41 @@
       'Cancelado'
     ];
   
-    onMount(() => {
-      // Simular carga de tickets
-      tickets = mockTickets;
+    onMount(async () => {
+      try {
+        const apiHost = window.location.origin;
+        const res = await fetch(`${apiHost}/api/ticket/list`);
+        if (!res.ok) throw new Error('No se pudieron obtener los tickets');
+        const data = await res.json();
+        // Si la API devuelve { tickets: [...] }
+        tickets = (data.tickets || []).map(({ticket, client, vehicle, user}) => ({
+          id: ticket.id,
+          name: client?.name || '',
+          email: client?.email || '',
+          phone: client?.phone || '',
+          vehicleDetails: {
+            type: vehicle?.type || '',
+            brand: vehicle?.make || '',
+            model: vehicle?.model || '',
+            year: vehicle?.year || '',
+            mileage: vehicle?.mileage || '',
+            plate: vehicle?.plate || ''
+          },
+          issueType: ticket.short_description || '',
+          issueDescription: ticket.description || '',
+          submissionDate: ticket.createdAt || '',
+          status: ticket.status || '',
+          mechanicNotes: '', // No viene de la API, dejar vacío
+          detailedDiagnosis: '', // No viene de la API, dejar vacío
+          servicesPerformed: '', // No viene de la API, dejar vacío
+          partsUsed: '', // No viene de la API, dejar vacío
+          laborHours: 0, // No viene de la API, dejar en 0
+          userAssignedTo: user || '', // Asignado al mecánico
+        }));
+      } catch (e) {
+        tickets = [];
+        alert('Error al cargar tickets: ' + e.message);
+      }
     });
   
     function handleSelectTicket(ticket) {
@@ -100,11 +86,11 @@
     $: filteredTickets = tickets.filter(ticket => {
       const search = searchTerm.toLowerCase();
       return (
-        ticket.id.toLowerCase().includes(search) ||
-        ticket.name.toLowerCase().includes(search) ||
-        ticket.vehicleDetails.brand.toLowerCase().includes(search) ||
-        ticket.vehicleDetails.model.toLowerCase().includes(search) ||
-        (ticket.vehicleDetails.plate && ticket.vehicleDetails.plate.toLowerCase().includes(search)) // Si tuvieras placa
+        (ticket.id && ticket.id.toLowerCase().includes(search)) ||
+        (ticket.name && ticket.name.toLowerCase().includes(search)) ||
+        (ticket.vehicleDetails.brand && ticket.vehicleDetails.brand.toLowerCase().includes(search)) ||
+        (ticket.vehicleDetails.model && ticket.vehicleDetails.model.toLowerCase().includes(search)) ||
+        (ticket.vehicleDetails.plate && ticket.vehicleDetails.plate.toLowerCase().includes(search))
       );
     });
   
@@ -113,8 +99,10 @@
   <div class="mechanic-dashboard">
     {#if currentView === 'list'}
       <h1>Tickets Pendientes y en Progreso</h1>
+
       <TicketList
         tickets={filteredTickets}
+        userAssignedTo={user}
         bind:searchTerm={searchTerm}
         on:selectTicket={(event) => handleSelectTicket(event.detail)}
       />
