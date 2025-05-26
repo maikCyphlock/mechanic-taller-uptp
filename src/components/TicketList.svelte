@@ -2,6 +2,7 @@
     import { createEventDispatcher } from 'svelte';
   
     export let tickets = [];
+    export let userAssignedTo = null; // El usuario asignado, si aplica
     export let searchTerm = '';
   
     const dispatch = createEventDispatcher();
@@ -15,6 +16,8 @@
       const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
       return new Date(dateString).toLocaleDateString(navigator.language || 'es-ES', options);
     }
+
+
   </script>
   
   <div class="ticket-list-container">
@@ -26,6 +29,8 @@
         aria-label="Buscar tickets"
       />
     </div>
+
+  
   
     {#if tickets.length === 0 && searchTerm}
       <p class="no-results">No se encontraron tickets con "{searchTerm}".</p>
@@ -40,8 +45,10 @@
             <strong class="ticket-id">{ticket.id}</strong>
             <span class="ticket-customer">Cliente: {ticket.name}</span>
             <span class="ticket-vehicle">Vehículo: {ticket.vehicleDetails.brand} {ticket.vehicleDetails.model} ({ticket.vehicleDetails.type})</span>
-            <span class="ticket-status">Estado: <span class="status-badge status-{ticket.status.toLowerCase().replace(/\s+/g, '-')}">{ticket.status}</span></span>
+            <span class="ticket-status">Estado: <span class="status-badge status-{ticket.status.toLowerCase().replace(/\s+/g, '-')}" >{ticket.status}</span></span>
             <span class="ticket-date">Recibido: {formatDate(ticket.submissionDate)}</span>
+            <span class="ticket-priority">Prioridad: {ticket.priority || 'N/A'}</span>
+            <span class="ticket-assigned">Asignado a: {ticket.userAssignedTo || 'N/A'}</span>
           </div>
           <button
             class="large-button button-primary view-details-button"
