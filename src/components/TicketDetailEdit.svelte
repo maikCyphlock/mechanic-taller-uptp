@@ -43,7 +43,6 @@
         <p><strong>Teléfono:</strong> {ticket.phone}</p>
         {#if ticket.email}<p><strong>Email:</strong> {ticket.email}</p>{/if}
         <p><strong>Vehículo:</strong> {ticket.vehicleDetails.type} - {ticket.vehicleDetails.brand} {ticket.vehicleDetails.model} ({ticket.vehicleDetails.year})</p>
-        <p><strong>Kilometraje:</strong> {ticket.vehicleDetails.mileage || 'N/A'} km</p>
         <p><strong>Fecha de Reporte:</strong> {formatDate(ticket.submissionDate)}</p>
         <p><strong>Tipo de Problema Reportado:</strong> {ticket.issueType}</p>
         <div class="issue-description-box">
@@ -51,10 +50,9 @@
           <p>{ticket.issueDescription}</p>
         </div>
       </div>
-  
+
       <div class="form-section mechanic-fields">
         <h3>Actualización del Mecánico</h3>
-  
         <div class="form-group">
           <label for="status">Estado del Ticket:</label>
           <select id="status" bind:value={ticket.status} required>
@@ -62,33 +60,6 @@
               <option value={statusOption}>{statusOption}</option>
             {/each}
           </select>
-        </div>
-  
-        <div class="form-group">
-          <label for="detailedDiagnosis">Diagnóstico Detallado:</label>
-          <textarea id="detailedDiagnosis" bind:value={ticket.detailedDiagnosis} rows="4" placeholder="Describa el diagnóstico técnico..."></textarea>
-        </div>
-  
-        <div class="form-group">
-          <label for="servicesPerformed">Servicios Realizados:</label>
-          <textarea id="servicesPerformed" bind:value={ticket.servicesPerformed} rows="4" placeholder="Liste los servicios y mano de obra... (Ej: Cambio de aceite, Alineación, etc.)"></textarea>
-          <small class="field-hint">Para una gestión más avanzada, esto podría ser una lista de ítems con costos individuales.</small>
-        </div>
-  
-        <div class="form-group">
-          <label for="partsUsed">Repuestos Utilizados:</label>
-          <textarea id="partsUsed" bind:value={ticket.partsUsed} rows="4" placeholder="Liste los repuestos, códigos y cantidades... (Ej: Filtro de aceite (XYZ123) - 1 und)"></textarea>
-          <small class="field-hint">Similar a servicios, podría ser una lista estructurada.</small>
-        </div>
-        
-        <div class="form-group">
-          <label for="laborHours">Horas de Trabajo (Mano de Obra):</label>
-          <input type="number" id="laborHours" bind:value={ticket.laborHours} min="0" step="0.1" placeholder="Ej: 2.5">
-        </div>
-  
-        <div class="form-group">
-          <label for="mechanicNotes">Notas Internas del Mecánico:</label>
-          <textarea id="mechanicNotes" bind:value={ticket.mechanicNotes} rows="3" placeholder="Notas adicionales, pendientes, o comentarios..."></textarea>
         </div>
       </div>
   
