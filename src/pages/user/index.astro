@@ -1,0 +1,38 @@
+---
+import Layout from '../../layout/layout.astro';
+if (!Astro.locals.user) {
+  throw new Error('User not authenticated');
+}
+
+
+---
+<script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+
+<Layout title="User Dashboard">
+<div 
+  hx-get="/api/ticket/list" 
+  hx-trigger="load" 
+  hx-target="#ticket-list" 
+  hx-ext="json-enc"
+>
+  <div id="ticket-list">
+    Loading tickets...
+  </div>
+</div>
+
+<script>
+  document.addEventListener('htmx:afterRequest', function(event) {
+    if (event.detail.target.id === 'ticket-list') {
+      const response = JSON.parse(event.detail.xhr.responseText);
+      const tickets = response.tickets;
+      let html = '<ul>';
+      tickets.forEach(ticket => {
+        html += `<li>${ticket.short_description} - ${ticket.status}</li>`;
+      });
+      html += '</ul>';
+      document.getElementById('ticket-list').innerHTML = html;
+    }
+  });
+</script>
+</Layout>
