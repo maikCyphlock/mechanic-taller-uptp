@@ -1,0 +1,112 @@
+---
+import Layout from '@/layout/layout.astro';
+import { GET as getTickets } from '@/pages/api/ticket/all';
+
+// Verificar autenticación
+if (!Astro.locals.user) {
+  return Astro.redirect('/signin');
+}
+
+// Verificar si es administrador
+if (Astro.locals.user.role !== 'admin') {
+  return Astro.redirect('/unauthorized');
+}
+
+// Obtener los tickets usando la función del endpoint
+const response = await getTickets(Astro);
+const { tickets } = await response.json();
+---
+
+<Layout title="Administrar Tickets">
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-2xl font-bold text-gray-800">Gestión de Tickets</h1>
+      <a 
+        href="/admin/tickets/create" 
+        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+      >
+        Nuevo Ticket
+      </a>
+    </div>
+
+    {!tickets || tickets.length === 0 ? (
+      <div class="bg-white rounded-lg shadow p-6 text-center">
+        <p class="text-gray-600">No hay tickets registrados</p>
+      </div>
+    ) : (
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehículo</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asignado a</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              {tickets.map(({ ticket: t, client: c, vehicle: v, user: u }) => (
+                <tr key={t.id} class="hover:bg-gray-50 transition-colors duration-150">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    #{t.id.slice(0, 5)}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">{c?.name || 'N/A'}</div>
+                    <div class="text-sm text-gray-500">{c?.phone || ''}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">
+                      {v ? `${v.type}, ${v.model}, ${v.year}` : 'N/A'}
+                    </div>
+                    <div class="text-sm text-gray-500">{v?.licensePlate || ''}</div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="text-sm text-gray-900 max-w-xs truncate" title={t.description || 'Sin descripción'}>
+                      {t.short_description || 'Sin descripción'}
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                      ${t.status === 'completed' ? 'bg-green-100 text-green-800' : 
+                        t.status === 'in_progress' ? 'bg-blue-100 text-blue-800' : 
+                        'bg-yellow-100 text-yellow-800'}`}>
+                      {t.status === 'completed' ? 'Completado' : 
+                       t.status === 'in_progress' ? 'En progreso' : 'Pendiente'}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {u?.name || 'No asignado'}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(t.createdAt).toLocaleDateString()}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
+                    <a 
+                      href={`/admin/tickets/${t.id}`} 
+                      class="text-blue-600 hover:text-blue-900 transition-colors"
+                      title="Ver detalles"
+                    >
+                      Ver
+                    </a>
+                    <a 
+                      href={`/admin/tickets/edit/${t.id}`} 
+                      class="text-indigo-600 hover:text-indigo-900 transition-colors"
+                      title="Editar ticket"
+                    >
+                      Editar
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
+  </div>
+</Layout>

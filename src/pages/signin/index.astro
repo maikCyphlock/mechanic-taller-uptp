@@ -4,24 +4,54 @@ import Layout from '@/layout/layout.astro'
 ---
 
 <Layout>
-	<div class='container'>
-		<h2>Inicia sesión aquí</h2>
-		<p id='error'></p>
-		<form id='signin-form'>
-			<input type='email' name='email' placeholder='Correo electrónico' required />
-			<input required type='password' name='password' placeholder='Contraseña' />
-			<button type='submit'>Iniciar sesión</button>
-		</form>
-		<p>¿No tienes una cuenta? <a href='/signup'>Regístrate aquí</a>.</p>
+	<div class='min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>
+		<div class='max-w-md w-full space-y-8'>
+			<div>
+				<h2 class='mt-6 text-center text-3xl font-extrabold text-gray-900'>
+					Inicia sesión
+				</h2>
+				<p class='mt-2 text-center text-sm text-gray-600'>
+					¿No tienes una cuenta?{' '}
+					<a href='/signup' class='font-medium text-sky-600 hover:text-sky-500'>
+						Regístrate aquí
+					</a>
+				</p>
+			</div>
+			<p id='error' class='error-message text-center'></p>
+			<form id='signin-form' class='mt-8 space-y-6'>
+				<div class='rounded-md shadow-sm -space-y-px'>
+					<div>
+						<label for='email' class='sr-only'>Correo electrónico</label>
+						<input id='email' name='email' type='email' required
+							class='appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-sky-500 focus:border-sky-500 focus:z-10 sm:text-sm'
+							placeholder='Correo electrónico' />
+					</div>
+					<div>
+						<label for='password' class='sr-only'>Contraseña</label>
+						<input id='password' name='password' type='password' required
+							class='appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-sky-500 focus:border-sky-500 focus:z-10 sm:text-sm'
+							placeholder='Contraseña' />
+					</div>
+				</div>
+
+				<div>
+					<button type='submit'
+						class='group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500'>
+						Iniciar sesión
+					</button>
+				</div>
+			</form>
+		</div>
 	</div>
+
 	<script>
 		import { authClient } from '../../lib/auth-client'
 
-		const errorShow = document.getElementById('error') as HTMLParagraphElement
+		const errorShow = document.getElementById('error')
 
 		document
 			.getElementById('signin-form')
-			?.addEventListener('submit', async (event: Event) => {
+			?.addEventListener('submit', async (event) => {
 				event.preventDefault()
 				const email = (event.target as HTMLFormElement).email.value
 				const password = (event.target as HTMLFormElement).password.value
@@ -31,22 +61,22 @@ import Layout from '@/layout/layout.astro'
 				})
 				if (Boolean(tmp.error) === false) {
 					window.location.href = '/'
-				} else {
-					errorShow.textContent = '😥 ' + tmp.error?.message || ''
+				} else if (errorShow) {
+					errorShow.textContent = '⚠️ ' + tmp.error?.message || ''
 				}
 			})
 	</script>
 </Layout>
 
 <style>
-	.container {
-		max-width: 500px;
-
-		h2 {
-			text-align: center;
-		}
-	}
-	#error {
+	.error-message {
 		color: var(--pico-form-element-invalid-focus-color);
+		animation: shake 0.5s;
+	}
+
+	@keyframes shake {
+		0%, 100% { transform: translateX(0); }
+		25% { transform: translateX(-5px); }
+		75% { transform: translateX(5px); }
 	}
 </style>

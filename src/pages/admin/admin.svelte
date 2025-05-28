@@ -6,13 +6,16 @@
   onMount(async () => {
     session = await authClient.admin.listUsers({
       query: {
-        limit: 10,
+        limit: 10000,
         offset: 0,
       }
     });
   });
 </script>
     <div>
+      <pre>
+        {JSON.stringify(session, null, 2)}
+      </pre>
     {#if session && session.data && session.data.users}
       <ul>
         {#each session.data.users as user}

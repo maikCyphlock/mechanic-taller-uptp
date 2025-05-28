@@ -1,22 +1,9 @@
 ---
-import { PWA } from "webapp-astro-pwa";
-
+import Layout from "@/layout/layout.astro";
 import MechanicsDashboard from "@/components/MechanicsDashboard.svelte";
 
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-		<PWA />
-	</head>
-	<body>
-		<h1>Astro</h1>
-		<!-- <SubmitTicket client:load  /> -->
-		<MechanicsDashboard client:load  />
-	</body>
-</html>
+<Layout>
+	<MechanicsDashboard client:load  />
+</Layout>

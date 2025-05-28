@@ -1,0 +1,205 @@
+---
+// src/pages/admin/users/[id]/modify.astro
+import Layout from '@/layout/layout.astro';
+import { getUserById, updateUser } from '@/pages/api/user/modify';
+
+// Obtener el ID de la URL
+const { id } = Astro.params;
+
+// Verificar si el ID existe
+if (!id) {
+  return Astro.redirect('/admin/users');
+}
+
+let user = null;
+let error = null;
+let success = false;
+
+try {
+  // Obtener datos del usuario
+  const response = await getUserById(id, Astro);
+  user = await response.json();
+  
+  // Manejar envío del formulario
+  if (Astro.request.method === 'POST') {
+    const data = await Astro.request.json();
+    
+    // Validar datos
+    if (!data.name || !data.email) {
+      error = 'Nombre y correo electrónico son requeridos';
+    } else {
+      // Actualizar usuario
+      const updateResponse = await updateUser(id, data, Astro);
+      const result = await updateResponse.json();
+      
+      if (result.success) {
+        success = true;
+        user = result.user; // Actualizar datos del usuario
+      } else {
+        error = result.error || 'Error al actualizar el usuario';
+      }
+    }
+  }
+} catch (err) {
+  error = 'Error al cargar los datos del usuario';
+  console.error(err);
+}
+
+// Si no se encontró el usuario, redirigir
+if (!user) {
+  return Astro.redirect('/admin/users');
+}
+---
+
+<Layout title={`Editar Usuario: ${user.name || 'Sin nombre'}`}>
+  <div class="max-w-4xl mx-auto py-8 px-4">
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold text-gray-900">Editar Usuario</h1>
+      <p class="mt-1 text-sm text-gray-500">
+        Actualiza la información del usuario.
+      </p>
+    </div>
+
+    {error && (
+      <div class="mb-4 bg-red-50 border-l-4 border-red-400 p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-red-700">{error}</p>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {success && (
+      <div class="mb-4 bg-green-50 border-l-4 border-green-400 p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-green-700">Usuario actualizado correctamente</p>
+          </div>
+        </div>
+      </div>
+    )}
+
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          Información del Usuario
+        </h3>
+      </div>
+      <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+        <form 
+          method="POST" 
+          class="divide-y divide-gray-200"
+          onsubmit="event.preventDefault(); 
+                   const form = event.target;
+                   const formData = new FormData(form);
+                   const data = {
+                     name: formData.get('name'),
+                     email: formData.get('email'),
+                     phone: formData.get('phone'),
+                     role: formData.get('role'),
+                     banned: formData.get('banned') === 'on'
+                   };
+                   fetch(window.location.href, {
+                     method: 'POST',
+                     headers: {
+                       'Content-Type': 'application/json',
+                     },
+                     body: JSON.stringify(data)
+                   }).then(response => response.json())
+                     .then(() => window.location.reload())
+                     .catch(err => console.error('Error:', err));"
+        >
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Nombre completo</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <input
+                type="text"
+                name="name"
+                value={user.name || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                required
+              />
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Correo electrónico</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <input
+                type="email"
+                name="email"
+                value={user.email || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                required
+              />
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Teléfono</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <input
+                type="tel"
+                name="phone"
+                value={user.phone || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Rol</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <select
+                name="role"
+                class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="user" selected={user.role === 'user'}>Usuario</option>
+                <option value="admin" selected={user.role === 'admin'}>Administrador</option>
+              </select>
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">Estado</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <div class="flex items-center">
+                <input
+                  id="banned"
+                  name="banned"
+                  type="checkbox"
+                  class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  checked={user.banned}
+                />
+                <label for="banned" class="ml-2 block text-sm text-gray-900">
+                  Usuario suspendido
+                </label>
+              </div>
+            </dd>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
+            <a
+              href="/admin/users"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Cancelar
+            </a>
+            <button
+              type="submit"
+              class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Guardar cambios
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</Layout>

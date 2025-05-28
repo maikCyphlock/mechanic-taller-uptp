@@ -1,6 +1,9 @@
 ---
 import { PWA } from "webapp-astro-pwa";
 import Navbar from "@/components/navbar.svelte";
+import { ClientRouter } from 'astro:transitions';
+
+import './global.css'
 ---
 
 <html lang="en">
@@ -9,13 +12,22 @@ import Navbar from "@/components/navbar.svelte";
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/light.css">
+    
 		<title>Astro</title>
+		<ClientRouter />
 		<PWA />
 	</head>
 	<body>
 	<Navbar client:idle/>
-		<slot/>
-	
+	<slot/>
 	</body>
 </html>
+
+
+<style>
+	body {
+		background-color: #f0f0f0;
+		margin: 0;
+		padding: 0;
+	}
+</style>

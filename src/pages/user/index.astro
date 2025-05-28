@@ -10,6 +10,14 @@ if (!Astro.locals.user) {
 <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
 
 <Layout title="User Dashboard">
+  <div 
+  hx-get="/api/ticket/list" 
+  hx-trigger="load" 
+
+  hx-ext="json-enc"
+>
+
+</div>
 <div 
   hx-get="/api/ticket/list" 
   hx-trigger="load" 
@@ -27,8 +35,20 @@ if (!Astro.locals.user) {
       const response = JSON.parse(event.detail.xhr.responseText);
       const tickets = response.tickets;
       let html = '<ul>';
-      tickets.forEach(ticket => {
-        html += `<li>${ticket.short_description} - ${ticket.status}</li>`;
+      tickets.forEach(({ ticket, client, vehicle, user }) => {
+        html += `
+          <li>
+            <strong>ID:</strong> ${ticket.id}<br>
+            <strong>Descripción Corta:</strong> ${ticket.short_description || 'N/A'}<br>
+            <strong>Estado:</strong> ${ticket.status}<br>
+            <strong>Prioridad:</strong> ${ticket.priority || 'N/A'}<br>
+         
+            <strong>Cliente:</strong> ${client.name || 'N/A'}<br>
+            <strong>Teléfono:</strong> ${client.phone || 'N/A'}<br>
+            <strong>Vehículo:</strong> ${vehicle.type || 'N/A'} (${vehicle.make || 'N/A'} ${vehicle.model || 'N/A'})<br>
+            <strong>mecanico asignado:</strong> ${user || 'N/A'}<br>
+          </li>
+        `;
       });
       html += '</ul>';
       document.getElementById('ticket-list').innerHTML = html;

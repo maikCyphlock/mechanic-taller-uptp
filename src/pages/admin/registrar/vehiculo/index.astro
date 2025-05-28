@@ -1,15 +1,45 @@
-<script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+---
+import Layout from "@/layout/layout.astro"
+---
+<Layout>
+  <script src="//unpkg.com/alpinejs" defer></script>
+  <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/htmx-ext-form-json"></script>
 
-<form
-  hx-target="#response" 
-  hx-post="/api/vehiculo/tipo/create"
+  <div x-data="{ showExtra: false }">
+    <!-- Formulario para registrar vehículo -->
+    <form
+      hx-target="#response" 
+      hx-post="/api/test/back"
+      hx-ext="form-json"
+    >
+      <!-- Campos principales -->
+      <input type="text" name="plate" placeholder="Placa del vehículo" required><br>
+      <input type="text" name="make" placeholder="Marca" required><br>
+      <input type="text" name="model" placeholder="Modelo" required><br>
+      
+      <!-- Botón para mostrar campos adicionales -->
+      <button type="button" @click="showExtra = !showExtra">
+        Opciones Adicionales
+      </button>
+      
+      <!-- Campos adicionales -->
+      <div x-transition x-show="showExtra">
+        <input type="number" name="year" placeholder="Año de fabricación"><br>
+        <input type="text" name="color" placeholder="Color del vehículo"><br>
+        <select name="type">
+          <option value="otro" selected>Otro</option>
+          <!-- Puedes agregar más opciones según los tipos disponibles -->
+          <option value="sedan">Sedán</option>
+          <option value="suv">SUV</option>
+          <option value="pickup">Pickup</option>
+        </select><br>
+        <input type="text" name="ownerId" placeholder="ID del propietario"><br>
+      </div>
+      
+      <button  type="submit">Enviar</button>
+    </form>
 
-  hx-ext="json-enc"
->
-  <input type="text" name="name" placeholder="Name" required><br>
-  <textarea name="descripcion" placeholder="escribe una descripcion corta del vehiculo" required></textarea><br>
-  <button type="submit">Send</button>
-</form>
-
-<div id="response"></div>
+    <div id="response"></div>
+  </div>
+</Layout>
