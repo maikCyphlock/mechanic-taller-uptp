@@ -11,16 +11,10 @@
     let searchTerm = '';
   
     const ticketStatuses = [
-      'Pendiente de Diagnóstico',
-      'Diagnóstico en Proceso',
-      'Esperando Aprobación Cliente',
-      'Esperando Repuestos',
-      'En Reparación',
-      'Control de Calidad',
-      'Listo para Entrega',
-      'Entregado',
-      'Facturado',
-      'Cancelado'
+      'ABIERTO',
+      'EN_PROCESO',
+      'CERRADO',
+      'CANCELADO'
     ];
   
     onMount(async () => {
