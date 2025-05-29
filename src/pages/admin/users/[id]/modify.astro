@@ -108,7 +108,8 @@ if (!user) {
                      email: formData.get('email'),
                      phone: formData.get('phone'),
                      role: formData.get('role'),
-                     banned: formData.get('banned') === 'on'
+                     banned: formData.get('banned') === 'on',
+                     cedula: formData.get('cedula') || '',
                    };
                    fetch(window.location.href, {
                      method: 'POST',
@@ -156,6 +157,17 @@ if (!user) {
             </dd>
           </div>
           <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <dt class="text-sm font-medium text-gray-500">cédula</dt>
+            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+              <input
+                type="number"
+                name="cedula"
+                value={user.cedula || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </dd>
+          </div>
+          <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
             <dt class="text-sm font-medium text-gray-500">Rol</dt>
             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
               <select
@@ -184,6 +196,7 @@ if (!user) {
               </div>
             </dd>
           </div>
+          
           <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
             <a
               href="/admin/users"

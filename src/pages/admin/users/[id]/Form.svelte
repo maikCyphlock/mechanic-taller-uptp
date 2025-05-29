@@ -8,7 +8,8 @@
       email: '',
       phone: '',
       role: 'user',
-      banned: false
+      banned: false,
+      cedula: '',
     };
   
     let success = false;
@@ -32,7 +33,8 @@
             email: user.email,
             phone: user.phone,
             role: user.role,
-            banned: user.banned
+            banned: user.banned,
+            cedula: user.cedula
           })
         });
   
@@ -165,7 +167,8 @@
             </div>
           </div>
         </div>
-  
+        
+        
         <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
           <a
             href="/admin/users"
