@@ -1,0 +1,11 @@
+---
+import EditClientForm from './EditClientForm.svelte'
+import Layout from '@/layout/layout.astro';
+const { id } = Astro.params;
+console.log({
+    id
+})
+---
+<Layout>
+    <EditClientForm id={id} client:load/>
+</Layout>
