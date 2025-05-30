@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm';
 
 export const GET: APIRoute = async ({ locals }) => {
   try {
+    
     const isAdmin = locals?.user?.role === 'admin';
 
     if (!isAdmin) {

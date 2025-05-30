@@ -51,7 +51,7 @@ const { tickets } = await response.json();
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
               {tickets.map(({ ticket: t, client: c, vehicle: v, user: u }) => (
-                <tr key={t.id} class="hover:bg-gray-50 transition-colors duration-150">
+                <tr class="hover:bg-gray-50 transition-colors duration-150">
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     #{t.id.slice(0, 5)}
                   </td>
@@ -72,12 +72,18 @@ const { tickets } = await response.json();
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span class={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                      ${t.status === 'completed' ? 'bg-green-100 text-green-800' : 
-                        t.status === 'in_progress' ? 'bg-blue-100 text-blue-800' : 
-                        'bg-yellow-100 text-yellow-800'}`}>
-                      {t.status === 'completed' ? 'Completado' : 
-                       t.status === 'in_progress' ? 'En progreso' : 'Pendiente'}
+                 
+                        ${t.status === 'ABIERTO' ? 'bg-green-100 text-green-800' : 
+                          t.status === 'EN_PROCESO' ? 'bg-blue-100 text-blue-800' : 
+                          t.status === 'CERRADO' ? 'bg-purple-100 text-purple-800' : 
+                          t.status === 'CANCELADO' ? 'bg-red-100 text-red-800' : 
+                          'bg-yellow-100 text-yellow-800'}`}>
+                          {t.status === 'completed' ? 'Completado' : 
+                           t.status === 'EN_PROCESO' ? 'Por Verificar Pago' : 
+                           t.status === 'CERRADO' ? 'Pago Verificado ✅' : 
+                           t.status === 'CANCELADO' ? 'Cancelado' : 'ABIERTO'}
                     </span>
+                      
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {u?.name || 'No asignado'}

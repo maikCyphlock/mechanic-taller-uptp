@@ -22,6 +22,7 @@ if (!response.ok) {
 }
 const { tickets } = await response.json();
 const { ticket, client, vehicle, user } = tickets[0];
+console.log({client})
 ---
 
 <Layout title={`Detalles del Ticket #${ticket.id}`}>
@@ -32,7 +33,9 @@ const { ticket, client, vehicle, user } = tickets[0];
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h2 class="text-lg font-semibold text-gray-700 mb-2">Información del Cliente</h2>
-          <p><strong>Nombre:</strong> {client?.name || 'N/A'}</p>
+          <a href=`/admin/clients/edit/${client.id}` class="text-blue-600 hover:text-blue-800 underline">
+            <p><strong>Nombre:</strong> {client?.name || 'N/A'}</p>
+          </a>
           <p><strong>Teléfono:</strong> {client?.phone || 'N/A'}</p>
           <p><strong>Email:</strong> {client?.email || 'N/A'}</p>
         </div>
@@ -52,7 +55,9 @@ const { ticket, client, vehicle, user } = tickets[0];
         <p><strong>Descripción:</strong> {ticket.description || 'N/A'}</p>
         <p><strong>Estado:</strong> {ticket.status}</p>
         <p><strong>Prioridad:</strong> {ticket.priority}</p>
-        <p><strong>Asignado a:</strong> {user || 'No asignado'}</p>
+      <a href={`/admin/users/${user.id}/modify`} class="text-blue-600 hover:text-blue-800 underline">
+        <p><strong>Asignado a:</strong> {user.name || 'No asignado'}</p>
+      </a>
         <p><strong>Fecha de Creación:</strong> {new Date(ticket.createdAt).toLocaleDateString()}</p>
       </div>
 
