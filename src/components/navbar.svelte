@@ -35,7 +35,8 @@
             icon: "👤",
             children: [
                 { path: "/user/dashboard", name: "Dashboard", icon: "📊" },
-                { path: "/user/profile", name: "Perfil", icon: "👤" },
+                // { path: "/user/profile", name: "Perfil", icon: "👤" },
+                
                 { path: "/user/settings", name: "Configuración", icon: "⚙️" }
             ]
         }
