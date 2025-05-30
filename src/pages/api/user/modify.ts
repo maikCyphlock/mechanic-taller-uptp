@@ -66,25 +66,47 @@ export const getUserById = async (userId: string, context: any) => {
     }
   };
 
-export const updateUser = async (userId: string, userData: UserUpdateData, context: any) => {
+export const PUT: APIRoute = async ({ request }) => {
   try {
+    const res = await request.json();
+
+    const { id, name, email, phone, role, banned, banReason, banExpires, cedula, emailVerified, image } = res;
+
+    if (!id) {
+      return new Response(
+        JSON.stringify({ error: 'ID de usuario no proporcionado' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Construir el objeto de actualización dinámicamente
+    const updateData: Partial<typeof user> = {};
+    if (name) updateData.name = name;
+    if (email) updateData.email = email;
+    if (phone) updateData.phone = phone;
+    if (role) updateData.role = role;
+    if (banned !== undefined) updateData.banned = banned;
+    if (banReason) updateData.banReason = banReason;
+    if (banExpires) updateData.banExpires = new Date(banExpires);
+    if (cedula) updateData.cedula = cedula;
+    if (emailVerified !== undefined) updateData.emailVerified = emailVerified;
+    if (image) updateData.image = image;
+
+    // Actualizar el usuario en la base de datos
     const [updatedUser] = await db
-    .update(user)
-    .set(userData)
-    .where(eq(user.id, userId))
-    .returning(); 
-    
+      .update(user)
+      .set(updateData)
+      .where(eq(user.id, id))
+      .returning();
+
     return new Response(
-      JSON.stringify(updatedUser),
+      JSON.stringify({ message: 'Usuario actualizado correctamente', updatedUser }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     console.error('Error updating user:', error);
     return new Response(
-      JSON.stringify({ 
-        error: 'Error al actualizar el usuario',
- 
-      }),
+      JSON.stringify({ error: 'Error al actualizar el usuario' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
