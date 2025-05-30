@@ -7,7 +7,8 @@
     name: '',
     email: '',
     phone: '',
-    address: ''
+    address: '',
+    cedula: ''
   };
 
   let message = '';
@@ -54,7 +55,7 @@
 </script>
 
 <div class="settings-container">
-  <h1>User Settings</h1>
+  <h1>Configuración del Perfil</h1>
  
   {#if message}
     <p class="message">{message}</p>
@@ -62,23 +63,27 @@
 
   <form on:submit|preventDefault={updateUserSettings}>
     <div class="form-group">
-      <label for="name">Name:</label>
+      <label for="name">nombre:</label>
       <input id="name" type="text" bind:value={user.name} />
     </div>
 
     <div class="form-group">
-      <label for="email">Email:</label>
+      <label for="email">Correo electrónico (email):</label>
       <input id="email" type="email" bind:value={user.email} />
     </div>
 
     <div class="form-group">
-      <label for="phone">Phone:</label>
+      <label for="phone">teléfono:</label>
       <input id="phone" type="tel" bind:value={user.phone} />
     </div>
 
     <div class="form-group">
-      <label for="address">Address:</label>
+      <label for="address">Dirreción residencial:</label>
       <input id="address" type="text" bind:value={user.address} />
+    </div>
+     <div class="form-group">
+      <label for="cedula">número de cedula de identidad</label>
+      <input id="cedula" type="text" bind:value={user.cedula} />
     </div>
 
     <button type="submit" class="save-button">Save Changes</button>
