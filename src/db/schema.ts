@@ -1,8 +1,8 @@
 import { pgTable, text, timestamp, boolean, integer, decimal,pgEnum } from "drizzle-orm/pg-core";
 
-export const statusTicketEnum = pgEnum("Status_Ticket", ["ABIERTO", "EN_PROCESO", "CERRADO", "CANCELADO","APROVADO"]);
+export const statusTicketEnum = pgEnum("Status_Ticket", ["ABIERTO", "EN_PROCESO", "CERRADO", "CANCELADO","APROBADO"]);
 export const prioridadTicketEnum = pgEnum("Prioridad_Ticket", ["BAJA", "MEDIA", "ALTA"]);
-export const roleEnum = pgEnum("Role", ["user", "admin", "CLIENTE", "GERENTE", "OTRO"]);
+export const roleEnum = pgEnum("Role", ["user", "admin", "CLIENTE", "GERENTE", "OTRO","SUPERADMIN"]);
 export const tipoVehiculoEnum = pgEnum("Tipo_Vehiculo", ["automovil", "camioneta", "camion", "motocicleta",  "otro"]);
 export const paymentStatusEnum = pgEnum("Payment_Status", ["PENDIENTE", "COMPLETADO", "FALLIDO"]);
 export const paymentMethodEnum = pgEnum("Payment_Method", ["EFECTIVO", "TARJETA_CREDITO", "TARJETA_DEBITO", "TRANSFERENCIA_BANCARIA","PAGO_MOVIL", "OTRO"]);
@@ -22,11 +22,12 @@ export const user = pgTable("user", {
     emailVerified: boolean('email_verified').$defaultFn(() => false).notNull(),
     image: text('image'),
     phone: text('telefono'), // Añadido de Usuario
-    role: text('role'),
+    role: roleEnum('role').notNull().default('user'), // Cambiado a roleEnum
     roleId: text('role_id').references(() => role.id, { onDelete: 'set null' }), // Cambiado a text
     banned: boolean('banned'),
     banReason: text('ban_reason'),
     banExpires: timestamp('ban_expires'),
+    delete_at: timestamp('delete_at'), // Añadido de Usuario
     ...TIMESTAMPS
 });
 
@@ -73,7 +74,8 @@ export const client = pgTable("client", {
     address: text('address'), // Dirección del cliente
     city: text('city'), // Ciudad del cliente
     state: text('state'), // Estado del cliente
-    cedula: text('cedula').unique(), // Cédula del cliente
+    cedula: text('cedula').unique(),
+    delete_at: timestamp('delete_at'), // Cédula del cliente
     ...TIMESTAMPS
 })
 
@@ -92,6 +94,7 @@ export const vehicleIssue = pgTable("vehicle_issue", {
     status: text('status').notNull(), // Estado del problema (abierto, cerrado, en proceso)
     issueDescription: text('issue_descrption'),
     issueType: text('issueType'),
+    delete_at: timestamp('delete_at'),
     vehicleId: text('vehicle_id').notNull().references(() => vehicle.id, { onDelete: 'set null' }),
     ...TIMESTAMPS // ID del vehículo asociado al problema
 })
@@ -104,13 +107,14 @@ export const vehicle = pgTable("vehicle", {
     year: integer('year'), // Año de fabricación del vehículo
     color: text('color'), // Color del vehículo
     type: tipoVehiculoEnum('type').notNull().default('otro'),
+    delete_at: timestamp('delete_at'),
     ownerId: text('owner_id').references(() => client.id, { onDelete: 'cascade' }),
     ...TIMESTAMPS // ID del usuario propietario del vehículo
 });
 
 // Tabla para los tickets de servicio
 export const ticket = pgTable("ticket", {
-    id: text('id').primaryKey().unique(), // ID único del ticket (clave primaria)
+    id: text('id').primaryKey(), // ID único del ticket (clave primaria)
     vehicleId: text('vehicle_id').notNull().references(() => vehicle.id, { onDelete: 'cascade' }),
     short_description: text('short_description'), // Placa del vehículo asociado al ticket
     description: text('description'), // Descripción del problema o servicio
@@ -126,6 +130,7 @@ export const ticket = pgTable("ticket", {
     payment_status: text('payment_status'), // Estado del pago (pendiente, completado, fallido)
     total_amount: decimal('total_amount'), // Monto total del ticket
     work_notes : text('work_notes'), // Notas de trabajo realizadas en el ticket
-    tool_used: text('tool_used'), // Herramientas utilizadas en el ticket
+    tool_used: text('tool_used'),
+    delete_at: timestamp('delete_at'), // Herramientas utilizadas en el ticket
     ...TIMESTAMPS
 });
