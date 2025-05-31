@@ -1,9 +1,11 @@
 import { pgTable, text, timestamp, boolean, integer, decimal,pgEnum } from "drizzle-orm/pg-core";
 
-export const statusTicketEnum = pgEnum("Status_Ticket", ["ABIERTO", "EN_PROCESO", "CERRADO", "CANCELADO"]);
+export const statusTicketEnum = pgEnum("Status_Ticket", ["ABIERTO", "EN_PROCESO", "CERRADO", "CANCELADO","APROVADO"]);
 export const prioridadTicketEnum = pgEnum("Prioridad_Ticket", ["BAJA", "MEDIA", "ALTA"]);
+export const roleEnum = pgEnum("Role", ["user", "admin", "CLIENTE", "GERENTE", "OTRO"]);
 export const tipoVehiculoEnum = pgEnum("Tipo_Vehiculo", ["automovil", "camioneta", "camion", "motocicleta",  "otro"]);
-
+export const paymentStatusEnum = pgEnum("Payment_Status", ["PENDIENTE", "COMPLETADO", "FALLIDO"]);
+export const paymentMethodEnum = pgEnum("Payment_Method", ["EFECTIVO", "TARJETA_CREDITO", "TARJETA_DEBITO", "TRANSFERENCIA_BANCARIA","PAGO_MOVIL", "OTRO"]);
 const TIMESTAMPS ={
     createdAt: timestamp('created_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull(), // Fecha de creación del cliente
     updatedAt: timestamp('updated_at').$defaultFn(() => /* @__PURE__ */ new Date()).notNull() // Fecha de actualización del cliente
@@ -118,5 +120,12 @@ export const ticket = pgTable("ticket", {
     assignedTo: text('assigned_to').references(() => user.id, { onDelete: 'set null' }), // ID del técnico o empleado asignado al ticket
     estimatedCost: decimal('estimated_cost'), // Costo estimado del servicio (puede ser nulo)
     clientId: text('client_id').references(() => client.id, { onDelete: 'set null' }), // ID del cliente asociado al ticket
+    approved_by:text('approved_by').references(() => user.id, { onDelete: 'set null' }), // ID del usuario que aprobó el ticket
+    approved_at: timestamp('approved_at'), // Fecha y hora de aprobación del ticket
+    payment_method: paymentMethodEnum('payment_method'), // Método de pago utilizado para el ticket
+    payment_status: text('payment_status'), // Estado del pago (pendiente, completado, fallido)
+    total_amount: decimal('total_amount'), // Monto total del ticket
+    work_notes : text('work_notes'), // Notas de trabajo realizadas en el ticket
+    tool_used: text('tool_used'), // Herramientas utilizadas en el ticket
     ...TIMESTAMPS
 });
