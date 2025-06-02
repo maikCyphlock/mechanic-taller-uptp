@@ -128,7 +128,11 @@ export const ticket = pgTable("ticket", {
     approved_at: timestamp('approved_at'), // Fecha y hora de aprobación del ticket
     payment_method: paymentMethodEnum('payment_method'), // Método de pago utilizado para el ticket
     payment_status: text('payment_status'), // Estado del pago (pendiente, completado, fallido)
+    payment_reference: text('payment_reference'), // Referencia del pago (puede ser nulo)
+    payment_amount: decimal('payment_amount'), // Monto del pago (puede ser nulo)
+    payment_date: timestamp('payment_date'), // Fecha del pago (puede ser nulo)
     total_amount: decimal('total_amount'), // Monto total del ticket
+    time_spent: integer('time_spent'), // Tiempo total dedicado al ticket en minutos
     work_notes : text('work_notes'), // Notas de trabajo realizadas en el ticket
     tool_used: text('tool_used'),
     delete_at: timestamp('delete_at'), // Herramientas utilizadas en el ticket
