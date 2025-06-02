@@ -15,7 +15,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
       phone,
       vehicleDetails,
       issueType,
-      issueDescription
+      issueDescription,
+      ...props
     } = body;
     console.log('Datos recibidos:', body);
     // Validación básica
