@@ -1,0 +1,233 @@
+# Astro
+
+> Astro is an all-in-one web framework for building websites. 
+
+- Astro uses island architecture and server-first design to reduce client-side JavaScript overhead and ship high performance websites.
+- Astro’s friendly content-focused features like content collections and built-in Markdown support make it an excellent choice for blogs, marketing, and e-commerce sites amongst others.
+- The `.astro` templating syntax provides powerful server rendering in a format that follows HTML standards and will feel very familiar to anyone who has used JSX.
+- Astro supports popular UI frameworks like React, Vue, Svelte, Preact, and Solid through official integrations.
+- Astro is powered by Vite, comes with a fast development server, bundles your JavaScript and CSS for you, and makes building websites feel fun.
+
+## Documentation Sets
+
+- [Abridged documentation](https://docs.astro.build/llms-small.txt): a compact version of the documentation for Astro, with non-essential content removed
+- [Complete documentation](https://docs.astro.build/llms-full.txt): the full documentation for Astro
+- [API Reference](https://docs.astro.build/_llms-txt/api-reference.txt): terse, structured descriptions of Astro’s APIs
+- [How-to Recipes](https://docs.astro.build/_llms-txt/how-to-recipes.txt): guided examples of adding features to an Astro project
+- [Build a Blog Tutorial](https://docs.astro.build/_llms-txt/build-a-blog-tutorial.txt): a step-by-step guide to building a basic blog with Astro
+- [Deployment Guides](https://docs.astro.build/_llms-txt/deployment-guides.txt): recipes for how to deploy an Astro website to different services
+- [CMS Guides](https://docs.astro.build/_llms-txt/cms-guides.txt): recipes for how to use different content management systems in an Astro project
+- [Backend Services](https://docs.astro.build/_llms-txt/backend-services.txt): advice on how to integrate backend services like Firebase, Sentry, and Supabase in an Astro project
+- [Migration Guides](https://docs.astro.build/_llms-txt/migration-guides.txt): advice on how to migrate a project built with another tool to Astro
+- [Additional Guides](https://docs.astro.build/_llms-txt/additional-guides.txt): guides to e-commerce, authentication, testing, and digital asset management in Astro projects
+
+## Notes
+
+- The complete documentation includes all content from the official documentation
+- The content is automatically generated from the same source as the official documentation
+
+## Optional
+
+- [The Astro blog](https://astro.build/blog/): the latest news about Astro development
+
+
+
+SSR Endpoints en Astro para tu Aplicación de Tickets
+
+## ¿Qué son los SSR Endpoints de Astro?
+
+Los SSR endpoints de Astro son rutas de API del lado del servidor que te permiten crear endpoints HTTP que procesan requests y retornan respuestas JSON o de otros tipos. [1](#0-0)  Estos endpoints soportan todos los métodos HTTP (GET, POST, PUT, DELETE, etc.) y reciben un contexto completo con acceso al request, parámetros de ruta, cookies, y más.
+
+## Estructura Óptima para tu Aplicación de Tickets
+
+### 1. Organización de Endpoints por Entidad
+
+Para tu aplicación, te recomiendo esta estructura en `src/pages/api/`:
+
+```
+src/pages/api/
+├── tickets/
+│   ├── index.ts          # GET /api/tickets (listar), POST /api/tickets (crear)
+│   ├── [id].ts           # GET, PUT, DELETE /api/tickets/[id]
+│   └── [id]/
+│       ├── close.ts      # POST /api/tickets/[id]/close
+│       └── approve.ts    # POST /api/tickets/[id]/approve
+├── clients/
+│   ├── index.ts          # CRUD básico de clientes
+│   └── [id].ts
+└── vehicles/
+    ├── index.ts
+    └── [id].ts
+```
+
+### 2. Manejo del Contexto API
+
+Cada endpoint recibe un contexto completo que incluye: [2](#0-1) 
+
+- `request`: El objeto Request completo
+- `params`: Parámetros de la ruta dinámica
+- `url`: URL parseada
+- `cookies`: Utilidades para cookies
+- `redirect`: Para redirecciones
+- `clientAddress`: IP del cliente
+
+### 3. Implementación para el Flujo de Cierre de Tickets
+
+Para tu funcionalidad específica de cierre de tickets, aquí está la implementación óptima:
+
+**`src/pages/api/tickets/[id]/close.ts`**
+```typescript
+import type { APIRoute } from 'astro';
+
+export const POST: APIRoute = async ({ request, params, cookies }) => {
+  try {
+    // Verificar autenticación
+    const session = cookies.get('session')?.value;
+    if (!session) {
+      return new Response(JSON.stringify({ error: 'No autorizado' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Parsear el body JSON
+    const body = await request.json();
+    const { 
+      finalCost, 
+      workDuration, 
+      paymentMethod, 
+      workNotes,
+      toolsUsed 
+    } = body;
+
+    // Validar datos requeridos
+    if (!finalCost || !workDuration || !paymentMethod) {
+      return new Response(JSON.stringify({ 
+        error: 'Faltan campos requeridos' 
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Aquí harías la actualización en la base de datos
+    // usando Drizzle ORM con tu schema
+    
+    return new Response(JSON.stringify({ 
+      success: true,
+      message: 'Ticket cerrado exitosamente'
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+  } catch (error) {
+    return new Response(JSON.stringify({ 
+      error: 'Error interno del servidor' 
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+};
+```
+
+### 4. Mejores Prácticas Específicas para tu Caso
+
+#### A. Validación de Entrada Robusta
+
+Los endpoints deben validar que el método HTTP es correcto. [3](#0-2)  Si un endpoint no soporta un método específico, Astro automáticamente retorna un 404.
+
+#### B. Manejo de Errores Consistente
+
+Todos los endpoints deben retornar objetos Response válidos. [4](#0-3)  Si no retornas un Response, Astro lanzará un error.
+
+#### C. Parsing de Request Body
+
+Para parsear JSON del request body, usa `await request.json()`. Para FormData, usa `await request.formData()`. [5](#0-4) 
+
+### 5. Implementación de Aprobación de Tickets
+
+**`src/pages/api/tickets/[id]/approve.ts`**
+```typescript
+export const POST: APIRoute = async ({ params, request, cookies }) => {
+  const ticketId = params.id;
+  const adminSession = await validateAdminSession(cookies);
+  
+  if (!adminSession) {
+    return new Response(JSON.stringify({ error: 'Acceso denegado' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  // Verificar que el ticket existe y está en estado CERRADO
+  // Actualizar a estado APROBADO
+  // Registrar quién aprobó y cuándo
+  
+  return new Response(JSON.stringify({ success: true }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  });
+};
+```
+
+### 6. Optimizaciones de Performance
+
+#### A. Streaming de Respuestas Grandes
+
+Para listas grandes de tickets, considera usar streaming: [6](#0-5) 
+
+#### B. Caching con Headers
+
+Establece headers apropiados para caching cuando sea apropiado:
+
+```typescript
+return new Response(JSON.stringify(data), {
+  status: 200,
+  headers: {
+    'Content-Type': 'application/json',
+    'Cache-Control': 'public, max-age=300' // 5 minutos
+  }
+});
+```
+
+### 7. Seguridad y Validación
+
+#### A. Validación de Roles
+
+Para endpoints administrativos como la aprobación, siempre valida roles:
+
+```typescript
+const userRole = await getUserRole(session);
+if (!['admin', 'GERENTE', 'SUPERADMIN'].includes(userRole)) {
+  return new Response(JSON.stringify({ error: 'Permisos insuficientes' }), {
+    status: 403
+  });
+}
+```
+
+#### B. Sanitización de Entrada
+
+Valida y sanitiza todos los inputs, especialmente para campos como `work_notes` que podrían contener texto libre.
+
+### 8. Integración con tu Schema de Drizzle
+
+Aprovecha tu schema existente para validaciones:
+
+```typescript
+import { ticket, statusTicketEnum, paymentMethodEnum } from '../../../schema';
+
+// Validar que el método de pago es válido
+if (!paymentMethodEnum.enumValues.includes(paymentMethod)) {
+  return new Response(JSON.stringify({ 
+    error: 'Método de pago inválido' 
+  }), { status: 400 });
+}
+```
+
+## Notes
+
+Los SSR endpoints de Astro son ideales para tu aplicación de tickets porque proporcionan una API robusta del lado del servidor con acceso completo al contexto de la petición. [7](#0-6)  La estructura modular por entidades te permitirá mantener el código organizado y escalable, mientras que el manejo granular de permisos y validaciones asegura la integridad de los datos en tu flujo de trabajo de tickets.
+
+Para tu caso específico de cierre y aprobación de tickets, esta arquitectura te permite implementar validaciones específicas por rol, tracking completo de cambios, y una API consistente que puede ser consumida tanto por tu frontend Astro como por aplicaciones móviles futuras.
