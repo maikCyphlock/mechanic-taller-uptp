@@ -13,9 +13,16 @@
     const ticketStatuses = [
       'ABIERTO',
       'EN_PROCESO',
-      'CERRADO',
       'CANCELADO'
     ];
+    const payment_methods = [
+             { value: 'EFECTIVO', label: 'Efectivo', icon: '💵' },
+        { value: 'PAGO_MOVIL', label: 'Pago Móvil', icon: '📱' },
+        { value: 'TARJETA_CREDITO', label: 'Tarjeta Crédito', icon: '💳' },
+        { value: 'TARJETA_DEBITO', label: 'Tarjeta Débito', icon: '🪪' },
+        { value: 'TRANSFERENCIA_BANCARIA', label: 'Transferencia', icon: '🏦' },
+        {value: null,label:"Otro",icon:''}
+    ]
   
     onMount(async () => {
       try {
@@ -26,27 +33,30 @@
         // Si la API devuelve { tickets: [...] }
         tickets = (data.tickets || []).map(({ticket, client, vehicle, user}) => ({
           id: ticket.id,
-          name: client?.name || '',
+          clients:{
+                 name: client?.name || '',
           email: client?.email || '',
           phone: client?.phone || '',
+          ...client
+          },
           vehicleDetails: {
             type: vehicle?.type || '',
             brand: vehicle?.make || '',
             model: vehicle?.model || '',
             year: vehicle?.year || '',
             mileage: vehicle?.mileage || '',
-            plate: vehicle?.plate || ''
+            plate: vehicle?.plate || '',
+            ...vehicle
           },
           issueType: ticket.short_description || '',
           issueDescription: ticket.description || '',
           submissionDate: ticket.createdAt || '',
           status: ticket.status || '',
-          mechanicNotes: '', // No viene de la API, dejar vacío
-          detailedDiagnosis: '', // No viene de la API, dejar vacío
-          servicesPerformed: '', // No viene de la API, dejar vacío
-          partsUsed: '', // No viene de la API, dejar vacío
-          laborHours: 0, // No viene de la API, dejar en 0
-          userAssignedTo: user || '', // Asignado al mecánico
+          users:{
+             userAssignedTo: user || '', // Asignado al mecánico
+             ...user
+          },
+          ...ticket
         }));
       } catch (e) {
         tickets = [];
@@ -104,6 +114,7 @@
       <TicketDetailEdit
         bind:ticket={selectedTicket}
         statuses={ticketStatuses}
+        paymentMethods={payment_methods}
         on:saveTicket={(event) => handleSaveTicket(event.detail)}
         on:cancel={handleBackToList}
       />

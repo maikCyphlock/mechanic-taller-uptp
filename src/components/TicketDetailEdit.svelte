@@ -1,12 +1,15 @@
 <script>
     import { createEventDispatcher } from 'svelte';
-
+    export let paymentMethods = []
     export let ticket; // El ticket seleccionado
     export let statuses = []; // Lista de estados posibles
 
     const dispatch = createEventDispatcher();
 
     function handleSubmit() {
+      console.log({
+        ticket
+      })
       dispatch('saveTicket', ticket);
     }
 
@@ -31,9 +34,9 @@
   <form on:submit|preventDefault={handleSubmit}>
     <div class="mb-6">
       <h3 class="text-lg font-semibold text-gray-700 mb-4">Información Inicial del Cliente y Vehículo</h3>
-      <p><strong>Cliente:</strong> {ticket.name}</p>
-      <p><strong>Teléfono:</strong> {ticket.phone}</p>
-      {#if ticket.email}<p><strong>Email:</strong> {ticket.email}</p>{/if}
+      <p><strong>Cliente:</strong> {ticket.clients.name}</p>
+      <p><strong>Teléfono:</strong> {ticket.clients.phone}</p>
+      {#if ticket.clients.email}<p><strong>Email:</strong> {ticket.clients.email}</p>{/if}
       <p><strong>Vehículo:</strong> {ticket.vehicleDetails.type} - {ticket.vehicleDetails.brand} {ticket.vehicleDetails.model} ({ticket.vehicleDetails.year})</p>
       <p><strong>Fecha de Reporte:</strong> {formatDate(ticket.submissionDate)}</p>
       <p><strong>Tipo de Problema Reportado:</strong> {ticket.issueType}</p>
@@ -49,7 +52,12 @@
         <label for="status" class="block text-gray-600 font-medium mb-2">Estado del Ticket:</label>
         <select id="status" bind:value={ticket.status} required class="w-full border border-gray-300 rounded px-3 py-2">
           {#each statuses as statusOption}
-            <option value={statusOption}>{statusOption}</option>
+            {#if statusOption === 'EN_PROCESO'}
+              <option value={statusOption}>APROBAR ✅</option>
+         
+            {:else}
+              <option value={statusOption}>{statusOption}</option>
+            {/if}
           {/each}
         </select>
       </div>
@@ -63,7 +71,16 @@
       </div>
       <div class="mb-4">
         <label for="assignedTo" class="block text-gray-600 font-medium mb-2">Asignado a:</label>
-        <input id="assignedTo" type="text" bind:value={ticket.assignedTo} class="w-full border border-gray-300 rounded px-3 py-2" />
+        <input id="assignedTo" type="text" bind:value={ticket.users.userAssignedTo} class="w-full border border-gray-300 rounded px-3 py-2" />
+      </div>
+      <div>
+         <select id="status" bind:value={ticket.payment_method} required class="w-full border border-gray-300 rounded px-3 py-2">
+           {#each paymentMethods as method}
+      
+              <option value={method.value}>{method.label}</option>
+            
+          {/each}
+          </select>
       </div>
     </div>
 

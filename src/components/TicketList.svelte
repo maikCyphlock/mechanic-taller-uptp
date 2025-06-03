@@ -40,12 +40,12 @@
         <li class="p-4 bg-white border border-gray-300 rounded-lg shadow">
           <div class="space-y-2">
             <p class="text-lg font-bold text-blue-600">ID: {ticket.id}</p>
-            <p><strong>Cliente:</strong> {ticket.name}</p>
-            <p><strong>Teléfono:</strong> {ticket.phone}</p>
+            <p><strong>Cliente:</strong> {ticket.clients.name}</p>
+            <p><strong>Teléfono:</strong> {ticket.clients.phone}</p>
             <p><strong>Vehículo:</strong> {ticket.vehicleDetails.brand} {ticket.vehicleDetails.model} ({ticket.vehicleDetails.type})</p>
             <p><strong>Estado:</strong> <span class="px-2 py-1 text-white rounded bg-blue-500">{ticket.status}</span></p>
             <p><strong>Prioridad:</strong> {ticket.priority || 'N/A'}</p>
-            <p><strong>Asignado a:</strong> {ticket.userAssignedTo || 'N/A'}</p>
+            <p><strong>Asignado a:</strong> {ticket.users.userAssignedTo || 'N/A'}</p>
             <p><strong>Fecha de Creación:</strong> {formatDate(ticket.submissionDate)}</p>
           </div>
           <button
