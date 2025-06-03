@@ -1,4 +1,6 @@
 <script>
+    import { date } from "drizzle-orm/mysql-core";
+
     export let tickets = [];
     let searchQuery = '';
     let selectedStatus = '';
@@ -11,6 +13,17 @@
     });
 
     const statuses = ['ABIERTO', 'EN_PROCESO', 'CERRADO', 'CANCELADO'];
+
+    const handleDeleteButton = async (id) => {
+        const wannaDelete = confirm("¿realmente quieres eliminarlo?")
+        if (wannaDelete === false) return;
+        const POST = await fetch (`/api/ticket/${id}/delete`)
+    }
+
+    const convertTolocaleTime = (date) => {
+        const modificatedDate = new Date(date)
+        return modificatedDate.toLocaleDateString()
+    }
 </script>
 
 <div class="mb-4 flex items-center space-x-4">
@@ -47,6 +60,35 @@
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
             {#each filteredTickets as { ticket: t, client: c, vehicle: v, user: u }}
+             {#if t.delete_at !== null}
+                  <tr class="hover:bg-gray-50 transition-colors duration-150">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        #{t.id.slice(0, 5)}
+                    </td>
+                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        ticket Eliminado
+                    </td>
+                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                       
+                    </td>
+                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                       
+                    </td>
+                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      
+                    </td>
+                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <small>eliminado el --></small>
+                    </td>
+                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      
+                       {
+                        convertTolocaleTime(t.delete_at)
+                       }
+                    </td>
+                </tr>
+            
+            {:else}
                 <tr class="hover:bg-gray-50 transition-colors duration-150">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         #{t.id.slice(0, 5)}
@@ -102,8 +144,13 @@
                         >
                             Editar
                         </a>
+                        <button on:click={handleDeleteButton(t.id)}>
+                            Eliminar Ticket
+                        </button>
                     </td>
                 </tr>
+          
+                {/if}
             {/each}
         </tbody>
     </table>
