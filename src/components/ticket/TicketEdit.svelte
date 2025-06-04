@@ -4,7 +4,7 @@
     export let vehicleId = '';
     export let short_description = '';
     export let description = '';
-    export let status = 'ABIERTO';
+    export let status = '';
     export let priority = 'MEDIA';
     export let assignedTo = '';
     export let estimatedCost = 0;
@@ -74,8 +74,8 @@
         };
 
         try {
-            const response = await fetch(`/api/ticket/${idTicket}/approve`, {
-                method: 'POST',
+            const response = await fetch(`/api/ticket/${idTicket}/update`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
