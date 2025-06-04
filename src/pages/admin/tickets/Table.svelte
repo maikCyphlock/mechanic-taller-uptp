@@ -147,6 +147,15 @@
                         <button on:click={handleDeleteButton(t.id)}>
                             Eliminar Ticket
                         </button>
+                         {#if  t.status === 'EN_PROCESO'}
+                            <a 
+                                href={`/admin/tickets/approve/${t.id}`} 
+                                class="text-red-600 hover:text-red-900 transition-colors"
+                                title="Cerrar ticket"
+                            >
+                                APROBAR TICKET
+                            </a>
+                        {/if}
                     </td>
                 </tr>
           

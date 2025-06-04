@@ -22,8 +22,14 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
   const filteredTicketData = Object.fromEntries(
     Object.entries(TicketDataToUpdate).filter(([key, value]) => value !== null && value !== '')
   );
-  console.log({filteredTicketData})
-  const Ticket = await db.update(ticket).set({ ...filteredTicketData }).where(eq(ticket.id, ticketId!)).returning()
+  const ApprovedFieldAddeToFilteredTicketData = {
+    ...filteredTicketData,
+    approved_at: new Date(), // Fecha y hora de aprobación
+    approvedBy: adminSession,
+    status: 'APROBADO' // ID del usuario que aprueba
+  }
+
+  const Ticket = await db.update(ticket).set(ApprovedFieldAddeToFilteredTicketData).where(eq(ticket.id, ticketId!)).returning()
   // Verificar que el ticket existe y está en estado CERRADO  
   // Actualizar a estado APROBADO  
   // Registrar quién aprobó y cuándo  
