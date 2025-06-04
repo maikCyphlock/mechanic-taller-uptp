@@ -18,6 +18,7 @@
     export let idTicket = '';
     export let payment_reference = '';
     export let payment_amount = 0;
+
     export let clientName ='';
     export let UserName = ''
 
@@ -123,7 +124,7 @@
 
     <div>
         <label for="description" class="block text-sm font-medium text-sky-700">Descripción</label>
-        <textarea id="description" bind:value={description} rows="4" class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm"></textarea>
+        <textarea required id="description" bind:value={description} rows="4" class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm"></textarea>
     </div>
 
     <div>
@@ -152,7 +153,7 @@
 
     <div>
         <label for="estimatedCost" class="block text-sm font-medium text-sky-700">Costo Estimado</label>
-        <input type="number" id="estimatedCost" bind:value={estimatedCost} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
+        <input type="number"  id="estimatedCost" bind:value={estimatedCost} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
     </div>
 
     <div>
@@ -164,29 +165,37 @@
         <label for="payment_method" class="block text-sm font-medium text-sky-700">Método de Pago</label>
         <select id="payment_method" bind:value={payment_method} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm">
             {#each paymentMethods as method}
-                <option value={method.value}>{method.icon} {method.label}</option>
+                <option required value={method.value}>{method.icon} {method.label}</option>
             {/each}
         </select>
     </div>
+       {#if payment_method === 'PAGO_MOVIL'}
+        <div>
+            <label for="payment_reference" class="block text-sm font-medium text-sky-700">Referencia de Pago</label>
+            <input minlength=4 required type="text" id="payment_reference" bind:value={payment_reference} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
+        </div>
+    {/if}
+       {#if payment_method === 'TRANSFERENCIA_BANCARIA'}
+        <div>
+            <label for="payment_reference" class="block text-sm font-medium text-sky-700">Referencia de la transferencia bancaria</label>
+            <input minlength=8 required type="text" id="payment_reference" bind:value={payment_reference} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
+        </div>
+    {/if}
      <div>
         <label for="payment_amount" class="block text-sm font-medium text-sky-700">Monto de Pago</label>
         <input type="number" id="payment_amount" bind:value={payment_amount} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
     </div>
+  
 
     <div>
         <label for="total_amount" class="block text-sm font-medium text-sky-700">Monto Total</label>
-        <input type="number" id="total_amount" bind:value={total_amount} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
+        <input type="number" required id="total_amount" bind:value={total_amount} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
     </div>
-    {#if payment_reference}
-        <div>
-            <label for="payment_reference" class="block text-sm font-medium text-sky-700">Referencia de Pago</label>
-            <input type="text" id="payment_reference" bind:value={payment_reference} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
-        </div>
-    {/if}
+ 
 
     <div>
         <label for="time_spent" class="block text-sm font-medium text-sky-700">Tiempo Invertido (minutos)</label>
-        <input type="number" id="time_spent" bind:value={time_spent} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
+        <input type="number" required id="time_spent" bind:value={time_spent} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
     </div>
 
     <div>
