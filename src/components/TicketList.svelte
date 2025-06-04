@@ -46,7 +46,7 @@
             <p><strong>Estado:</strong> <span class="px-2 py-1 text-white rounded bg-blue-500">{ticket.status}</span></p>
             <p><strong>Prioridad:</strong> {ticket.priority || 'N/A'}</p>
             <p><strong>Asignado a:</strong> {ticket.users.userAssignedTo || 'N/A'}</p>
-            <p><strong>Fecha de Creación:</strong> {formatDate(ticket.submissionDate)}</p>
+            <p><strong>Fecha de Creación:</strong> {formatDate(ticket.createdAt)}</p>
           </div>
           <button
             class="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700"

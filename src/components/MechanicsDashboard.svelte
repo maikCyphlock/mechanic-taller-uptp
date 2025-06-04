@@ -50,7 +50,7 @@
           },
           issueType: ticket.short_description || '',
           issueDescription: ticket.description || '',
-          submissionDate: ticket.createdAt || '',
+       
           status: ticket.status || '',
           users:{
              userAssignedTo: user || '', // Asignado al mecánico
@@ -79,7 +79,7 @@
       selectedTicket = null;
       currentView = 'list';
       searchTerm = ''; // Limpiar búsqueda para ver el ticket actualizado
-      alert('Ticket actualizado exitosamente (simulado)');
+
     }
   
     function handleBackToList() {
