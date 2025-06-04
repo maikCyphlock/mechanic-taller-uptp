@@ -15,6 +15,7 @@
     export let work_notes = '';
     export let tool_used = '';
     export let idTicket = '';
+    export let UserName = ''
 
     const dispatch = createEventDispatcher();
        const paymentMethods = [
@@ -34,6 +35,7 @@
                 console.log(data)
                 if (data && data.length > 0) {
                     const ticketData = data[0].ticket;
+                    UserName= data[0].user
                     vehicleId = ticketData.vehicleId || '';
                     short_description = ticketData.short_description || '';
                     description = ticketData.description || '';
@@ -132,8 +134,8 @@
     </div>
 
     <div>
-        <label for="assignedTo" class="block text-sm font-medium text-sky-700">Asignado A</label>
-        <input type="text" id="assignedTo" bind:value={assignedTo} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
+        <label for="UserName" class="block text-sm font-medium text-sky-700">Asignado A</label>
+        <input disabled type="text" id="UserName" bind:value={UserName} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
     </div>
 
     <div>

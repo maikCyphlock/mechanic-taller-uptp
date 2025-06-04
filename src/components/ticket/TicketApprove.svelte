@@ -19,6 +19,7 @@
     export let payment_reference = '';
     export let payment_amount = 0;
     export let clientName ='';
+    export let UserName = ''
 
     const dispatch = createEventDispatcher();
        const paymentMethods = [
@@ -38,7 +39,7 @@
                 console.log(data)
                 if (data && data.length > 0) {
                     const ticketData = data[0].ticket;
-                   
+                    UserName = data[0].user
                     clientName = data[0].client.name || ''
                     vehicleId = ticketData.vehicleId || '';
                     short_description = ticketData.short_description || '';
@@ -117,7 +118,7 @@
 
     <div>
         <label for="short_description" class="block text-sm font-medium text-sky-700">Descripción Corta</label>
-        <input type="text" id="short_description" bind:value={short_description} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
+        <input  disabled type="text" id="short_description" bind:value={short_description} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
     </div>
 
     <div>
@@ -145,8 +146,8 @@
     </div>
 
     <div>
-        <label for="assignedTo" class="block text-sm font-medium text-sky-700">Asignado A</label>
-        <input type="text" id="assignedTo" bind:value={assignedTo} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
+        <label for="UserName" class="block text-sm font-medium text-sky-700">Asignado A</label>
+        <input disabled type="text" id="UserName" bind:value={UserName} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
     </div>
 
     <div>
@@ -156,7 +157,7 @@
 
     <div>
         <label for="clientId" class="block text-sm font-medium text-sky-700">ID del Cliente</label>
-        <input type="text" id="clientId" bind:value={clientName} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
+        <input disabled type="text" id="clientId" bind:value={clientName} class="mt-1 block w-full rounded-md border-sky-300 shadow-sm focus:ring-sky-500 focus:border-sky-500 sm:text-sm" />
     </div>
 
     <div>
