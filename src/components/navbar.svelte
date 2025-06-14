@@ -34,10 +34,10 @@
             name: "Usuario", 
             icon: "👤",
             children: [
-                { path: "/user/dashboard", name: "Dashboard", icon: "📊" },
+                { path: "/user/dashboard", name: "mis trabajos", icon: "📊" },
                 // { path: "/user/profile", name: "Perfil", icon: "👤" },
                 
-                { path: "/user/settings", name: "Configuración", icon: "⚙️" }
+                { path: "/user/settings", name: "mi perfil", icon: "⚙️" }
             ]
         }
     ];
