@@ -4,7 +4,6 @@ import { db } from '@/lib/db';
 import {  vehicle } from '@/db/schema';
 
 import { randomUUID } from 'crypto';
-import { client } from 'drizzle/schema';
 
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -22,16 +21,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
     } = body;
     console.log('Datos recibidos:', body);
     // Validación básica
-    if (!name || !phone || !vehicleDetails || !issueType || !issueDescription) {
+    if (!name ) {
       return new Response(
         JSON.stringify({ error: 'Todos los campos son obligatorios.' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    // Obtener el userId del usuario autenticado
-    const userId = locals?.user?.id || null;
-
+ 
 
     await db.insert(vehicle).values({
       id: randomUUID(),
