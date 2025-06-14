@@ -1,0 +1,8 @@
+---
+description: 
+globs: *.svelte
+alwaysApply: false
+---
+* do not use sveltekit code, use svelte vanilla instead
+
+* this code must be compatible with Astro framework
