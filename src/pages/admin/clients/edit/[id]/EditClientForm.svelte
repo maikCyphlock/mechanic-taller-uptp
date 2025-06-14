@@ -1,36 +1,51 @@
 <script>
     import { onMount } from 'svelte';
+    import { clientStore, fetchClientById, updateClient } from '@/lib/stores/clientStore';
+    import FormInput from '@/components/FormInput.svelte';
 
     export let id;
-    let clientFound;
-    let client = {
-        id,
-        name: "",
-        email: "",
-        phone: "",
-        state: "",
-        cedula: "",
-        address: "",
-        city: "",
-    };
+    let errors = {};
+    let isSubmitting = false;
 
     onMount(async () => {
-        let res = await fetch("/api/client/getbyId", {
-            method: "POST",
-            body: JSON.stringify({ id })
-        });
-        clientFound = await res.json();
-        clientFound = clientFound[0];
-        client = { ...client, ...clientFound };
+        try {
+            await fetchClientById(id);
+        } catch (error) {
+            console.error('Error loading client:', error);
+            // Aquí podrías mostrar un mensaje de error al usuario
+        }
     });
+
+    const validateForm = () => {
+        errors = {};
+        const client = $clientStore;
+
+        if (!client.name) errors.name = 'El nombre es requerido';
+        if (!client.email) errors.email = 'El email es requerido';
+        if (client.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(client.email)) {
+            errors.email = 'Email inválido';
+        }
+        if (!client.phone) errors.phone = 'El teléfono es requerido';
+        if (!client.cedula) errors.cedula = 'La cédula es requerida';
+
+        return Object.keys(errors).length === 0;
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        await fetch('/api/client/modify', {
-            body: JSON.stringify(client),
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' }
-        });
+        
+        if (!validateForm()) return;
+        
+        isSubmitting = true;
+        try {
+            await updateClient($clientStore);
+            window.location.href = '/admin/clients'; // Redirigir a la lista de clientes después de actualizar
+        } catch (error) {
+            console.error('Error updating client:', error);
+            // Aquí podrías mostrar un mensaje de error al usuario
+        } finally {
+            isSubmitting = false;
+        }
     };
 </script>
 
@@ -38,60 +53,65 @@
     <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
         <h2 class="mb-6 text-center text-3xl font-extrabold text-gray-900">Editar Cliente</h2>
         <form on:submit={handleSubmit} class="space-y-6">
-            <div>
-                <label for="name" class="block text-sm font-medium text-gray-700">Nombre</label>
-                <input type="text" id="name" name="name" bind:value={client.name} 
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
-                                 placeholder-gray-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500" />
-            </div>
+            <FormInput
+                label="Nombre"
+                id="name"
+                bind:value={$clientStore.name}
+                error={errors.name}
+            />
 
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input type="email" id="email" name="email" bind:value={client.email} 
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
-                                 placeholder-gray-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500" />
-            </div>
+            <FormInput
+                label="Email"
+                type="email"
+                id="email"
+                bind:value={$clientStore.email}
+                error={errors.email}
+            />
 
-            <div>
-                <label for="phone" class="block text-sm font-medium text-gray-700">Teléfono</label>
-                <input type="tel" id="phone" name="phone" bind:value={client.phone} 
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
-                                 placeholder-gray-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500" />
-            </div>
+            <FormInput
+                label="Teléfono"
+                type="tel"
+                id="phone"
+                bind:value={$clientStore.phone}
+                error={errors.phone}
+            />
 
-            <div>
-                <label for="state" class="block text-sm font-medium text-gray-700">Estado Residente</label>
-                <input type="text" id="state" name="state" bind:value={client.state} 
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
-                                 placeholder-gray-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500" />
-            </div>
+            <FormInput
+                label="Estado Residente"
+                id="state"
+                bind:value={$clientStore.state}
+                error={errors.state}
+            />
 
-            <div>
-                <label for="cedula" class="block text-sm font-medium text-gray-700">Cédula</label>
-                <input type="text" id="cedula" name="cedula" bind:value={client.cedula} 
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
-                                 placeholder-gray-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500" />
-            </div>
+            <FormInput
+                label="Cédula"
+                id="cedula"
+                bind:value={$clientStore.cedula}
+                error={errors.cedula}
+            />
 
-            <div>
-                <label for="city" class="block text-sm font-medium text-gray-700">Ciudad</label>
-                <input type="text" id="city" name="city" bind:value={client.city} 
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
-                                 placeholder-gray-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500" />
-            </div>
+            <FormInput
+                label="Ciudad"
+                id="city"
+                bind:value={$clientStore.city}
+                error={errors.city}
+            />
 
-            <div>
-                <label for="address" class="block text-sm font-medium text-gray-700">Dirección</label>
-                <input type="text" id="address" name="address" bind:value={client.address} 
-                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
-                                 placeholder-gray-400 focus:outline-none focus:ring-sky-500 focus:border-sky-500" />
-            </div>
+            <FormInput
+                label="Dirección"
+                id="address"
+                bind:value={$clientStore.address}
+                error={errors.address}
+            />
 
-            <button type="submit" 
+            <button 
+                type="submit" 
+                disabled={isSubmitting}
                 class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm 
-                             text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 
-                             focus:ring-offset-2 focus:ring-sky-500">
-                Enviar
+                       text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 
+                       focus:ring-offset-2 focus:ring-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                {isSubmitting ? 'Guardando...' : 'Guardar'}
             </button>
         </form>
     </div>
