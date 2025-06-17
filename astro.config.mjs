@@ -15,8 +15,14 @@ export default defineConfig({
         svelte()
         ],
     adapter: node({
-     mode: 'standalone'
+     mode: 'standalone',
+
     }),
+    server:{
+        //@ts-ignore
+        port: process.env.port,
+        host: "0.0.0.0"
+    },
     vite:{
         plugins:[tailwindcss()]
     },
