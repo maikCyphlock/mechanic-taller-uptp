@@ -26,7 +26,8 @@
             children: [
                 { path: "/admin/tickets", name: "Tickets", icon: "🎫" },
                 { path: "/admin/clients", name: "Clientes", icon: "👥" },
-                { path: "/admin/users", name: "Usuarios", icon: "👥" }
+                { path: "/admin/users", name: "Usuarios", icon: "👥" },
+                { path: "/admin/vehiculo", name: "vehiculos", icon: "👥" }
             ]
         },
         { 
@@ -56,8 +57,8 @@
     });
     
     // Toggle dropdown
-    function toggleDropdown(menuName: string, event: MouseEvent) {
-        event.stopPropagation();
+    function toggleDropdown(menuName: string, e: Event) {
+        e.stopPropagation();
         openDropdown = openDropdown === menuName ? null : menuName;
     }
     
@@ -115,7 +116,7 @@
                         {#if item.children.length > 0}
                             <button 
                                 class="dropdown-toggle"
-                                on:click|stopPropagation={() => toggleDropdown(item.path, event)}
+                                on:click|stopPropagation={(e) => toggleDropdown(item.path, e)}
                                 aria-expanded={openDropdown === item.path}
                                 aria-haspopup="true"
                             >
@@ -154,7 +155,7 @@
                     <div class="user-info">
                         <button 
                             class="user-dropdown-toggle"
-                            on:click|stopPropagation={() => toggleDropdown('user', event)}
+                            on:click|stopPropagation={(e) => toggleDropdown('user', e)}
                             aria-expanded={openDropdown === 'user'}
                             aria-haspopup="true"
                         >

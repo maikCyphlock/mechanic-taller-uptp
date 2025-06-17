@@ -5,6 +5,8 @@ import svelte from "@astrojs/svelte";
 import node from '@astrojs/node'
 import tailwindcss from "@tailwindcss/vite";
 
+import vercel from "@astrojs/vercel";
+
 // https://astro.build/config
 export default defineConfig({
     output: 'server',
@@ -12,9 +14,7 @@ export default defineConfig({
         PoweredWebAppBuilder({}), 
         svelte()
         ],
-    adapter: node({
-        mode: 'standalone',
-    }),
+    adapter: vercel(),
     vite:{
         plugins:[tailwindcss()]
     },
