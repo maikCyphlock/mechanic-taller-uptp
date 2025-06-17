@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@astrojs/db": "^0.14.14",
+    "@astrojs/netlify": "^6.4.0",
     "@astrojs/node": "^9.2.1",
     "@astrojs/svelte": "^7.0.13",
     "@astrojs/vercel": "^8.1.5",
