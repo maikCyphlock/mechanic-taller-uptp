@@ -14,7 +14,9 @@ export default defineConfig({
         PoweredWebAppBuilder({}), 
         svelte()
         ],
-    adapter: vercel(),
+    adapter: vercel({
+        edgeMiddleware: true
+    }),
     vite:{
         plugins:[tailwindcss()]
     },
