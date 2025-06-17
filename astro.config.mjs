@@ -7,8 +7,6 @@ import tailwindcss from "@tailwindcss/vite";
 
 import vercel from "@astrojs/vercel";
 
-import netlify from "@astrojs/netlify";
-
 // https://astro.build/config
 export default defineConfig({
     output: 'server',
@@ -16,7 +14,9 @@ export default defineConfig({
         PoweredWebAppBuilder({}), 
         svelte()
         ],
-    adapter: netlify(),
+    adapter: node({
+     mode: 'standalone'
+    }),
     vite:{
         plugins:[tailwindcss()]
     },
