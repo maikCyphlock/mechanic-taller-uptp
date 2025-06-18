@@ -4,6 +4,9 @@
     export let ticket; // El ticket seleccionado
     export let statuses = []; // Lista de estados posibles
 
+    function handleCancel() {
+      window.history.back();
+    }
 
     async function handleSubmit() {
       if (!ticket) {
