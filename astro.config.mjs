@@ -18,7 +18,7 @@ export default defineConfig({
     }),
     server:{
         //@ts-ignore
-        port: process.env.PORT || 4321,
+        port: process.env.port ,
         host: "0.0.0.0"
     },
     vite:{
