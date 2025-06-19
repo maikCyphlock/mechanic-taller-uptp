@@ -1,15 +1,14 @@
 ---
-import Layout from "../layout/layout.astro"
-import SubmitTicket from "../components/SubmitTicket.svelte"
+import Layout from "@/layout/layout.astro"
+import SubmitTicket from "@/components/SubmitTicket.svelte"
 
 const isEmailVerified = Astro.locals.user.emailVerified
-console.log("isEmailVerified",isEmailVerified )
+
 ---
 <Layout>
-	{isEmailVerified || !Astro.locals.user ? (
+	{isEmailVerified  ? (
 		<div>
-		
-		<SubmitTicket/>
+			<SubmitTicket/>
 		</div>
 	) : (
 	<main class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
