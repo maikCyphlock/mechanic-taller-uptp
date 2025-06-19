@@ -127,7 +127,7 @@
       margin: 0 auto;
       padding: 15px;
       font-family: Arial, sans-serif;
-      background-color: #f4f7f6; /* Un fondo ligeramente diferente para el dashboard */
+ /* Un fondo ligeramente diferente para el dashboard */
       min-height: 100vh;
     }
   
