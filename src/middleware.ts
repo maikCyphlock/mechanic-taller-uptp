@@ -10,6 +10,7 @@ const PUBLIC_ROUTES = [
     "/signup",
     "/api/auth",
     "/api/auth/sign-out",
+    "/api/auth/email",
 ];
 
 export const onRequest = sequence(

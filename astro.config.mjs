@@ -5,8 +5,6 @@ import svelte from "@astrojs/svelte";
 import node from '@astrojs/node'
 import tailwindcss from "@tailwindcss/vite";
 
-import vercel from "@astrojs/vercel";
-
 // https://astro.build/config
 export default defineConfig({
     output: 'server',
@@ -20,7 +18,7 @@ export default defineConfig({
     }),
     server:{
         //@ts-ignore
-        port: process.env.port,
+        port: process.env.PORT || 4321,
         host: "0.0.0.0"
     },
     vite:{
