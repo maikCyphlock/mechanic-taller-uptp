@@ -8,12 +8,12 @@
   "scripts": {
     "dev": "astro dev",
     "dev:verbose": "astro dev --verbose",
-    "build": "astro build",
+    "build": "astro build && npm run build:sw",
     "preview": "astro preview",
     "astro": "astro",
     "drizzle:push": "drizzle-kit push",
     "drizzle:studio": "drizzle-kit studio",
-    "generateAndBundleSW": "SW_DIST_PATH=src/pwa npx workbox-cli injectManifest node_modules/webapp-astro-pwa/src/pwa/workbox.config.cjs && node node_modules/webapp-astro-pwa/src/pwa/bundle-sw.mjs"
+    "build:sw": "SW_DIST_PATH=dist/client npx workbox-cli injectManifest node_modules/webapp-astro-pwa/src/pwa/workbox.config.cjs && node node_modules/webapp-astro-pwa/src/pwa/bundle-sw.mjs"
   },
   "dependencies": {
     "@astrojs/db": "^0.14.14",
