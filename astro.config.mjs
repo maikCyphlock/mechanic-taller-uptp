@@ -23,12 +23,12 @@ export default defineConfig({
                 icons: [
                     {
                         sizes: "512x512",
-                        src: "node_modules/webapp-astro-pwa/src/manifest_imgs/icon512x512.png",
+                        src: "/icons/icon512x512.png",
                         type: "image/png",
                     },
                     {
                         sizes: "192x192",
-                        src: "node_modules/webapp-astro-pwa/src/manifest_imgs/icon192x192.png",
+                        src: "/icons/icon192x192.png",
                         type: "image/png",
                     },
                 ],
@@ -38,13 +38,13 @@ export default defineConfig({
                     rel: "icon",
                     type: "png",
                     sizes: "512x512",
-                    href: "/webapp-astro-pwa/src/manifest_imgs/icon512x512.png",
+                    href: "/icons/icon512x512.png",
                 },
                 {
                     rel: "apple-touch-icon",
                     type: "png",
                     sizes: "192x192",
-                    href: "/webapp-astro-pwa/src/manifest_imgs/icon512x512.png",
+                    href: "/icons/icon512x512.png",
                 },
             ],
             meta: [
