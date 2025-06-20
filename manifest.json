@@ -1,0 +1,20 @@
+{
+  "name": "Taller UPTP",
+  "short_name": "TallerUPTP",
+  "description": "Aplicación de gestión para el taller UPTP.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#8936FF",
+  "icons": [
+    {
+      "sizes": "512x512",
+      "src": "node_modules/webapp-astro-pwa/src/manifest_imgs/icon512x512.png",
+      "type": "image/png"
+    },
+    {
+      "sizes": "192x192",
+      "src": "node_modules/webapp-astro-pwa/src/manifest_imgs/icon192x192.png",
+      "type": "image/png"
+    }
+  ]
+}
