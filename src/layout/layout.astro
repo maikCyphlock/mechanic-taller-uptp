@@ -1,6 +1,6 @@
 ---
 import { PWA } from "webapp-astro-pwa";
-import Navbar from "@/components/navbar.svelte";
+import Navbar from "@/components/Navbar.svelte";
 import { ClientRouter } from 'astro:transitions';
 
 import './global.css'
@@ -18,7 +18,7 @@ import './global.css'
 		<PWA />
 	</head>
 	<body>
-	<Navbar client:idle/>
+	<Navbar client:idle />
 	<slot/>
 	</body>
 </html>

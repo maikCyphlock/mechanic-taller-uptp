@@ -5,6 +5,8 @@
     const session = authClient.useSession();
     let isMenuOpen = false;
     let openDropdown: string | null = null;
+    let isLoading = true;
+    let isSigningOut = false;
     
     // Get current path from Astro's global
     let currentPath = '';
@@ -45,13 +47,20 @@
     
     // Set current path when component mounts
     onMount(() => {
+        let timer: NodeJS.Timeout;
+        
         if (typeof window !== 'undefined') {
             currentPath = window.location.pathname;
             document.addEventListener('click', handleClickOutside);
+            // Simulate session loading (remove this in production if your auth handles it)
+            timer = setTimeout(() => {
+                isLoading = false;
+            }, 500);
         }
         return () => {
             if (typeof window !== 'undefined') {
                 document.removeEventListener('click', handleClickOutside);
+                clearTimeout(timer);
             }
         };
     });
@@ -151,34 +160,48 @@
             </ul>
             
             <div class="user-section">
-                {#if $session?.data}
+                {#if isLoading}
+                    <div class="loader"></div>
+                {:else if $session?.data}
                     <div class="user-info">
                         <button 
                             class="user-dropdown-toggle"
                             on:click|stopPropagation={(e) => toggleDropdown('user', e)}
                             aria-expanded={openDropdown === 'user'}
                             aria-haspopup="true"
+                            disabled={isSigningOut}
                         >
                             <span class="user-avatar">{$session.data.user?.name?.charAt(0) || 'U'}</span>
                             <span class="user-name">{$session.data.user?.name || 'Usuario'}</span>
                             <span class="dropdown-arrow">▾</span>
                         </button>
                         <div class="dropdown-menu user-dropdown {openDropdown === 'user' ? 'show' : ''}">
-                            <a href="/user/profile" on:click|stopPropagation={closeAll}>
-                                <span class="icon">👤</span> Perfil
-                            </a>
                             <a href="/user/settings" on:click|stopPropagation={closeAll}>
                                 <span class="icon">⚙️</span> Configuración
                             </a>
                             <button 
-                                class="signout-btn"
+                                class="signout-btn {isSigningOut ? 'loading' : ''}"
                                 on:click|stopPropagation={async () => {
-                                    await authClient.signOut();
-                                    closeAll();
-                                    window.location.href = '/';
+                                    if (isSigningOut) return;
+                                    isSigningOut = true;
+                                    try {
+                                        await authClient.signOut();
+                                        closeAll();
+                                        window.location.href = '/';
+                                    } catch (error) {
+                                        console.error('Error signing out:', error);
+                                        isSigningOut = false;
+                                    }
                                 }}
+                                disabled={isSigningOut}
                             >
-                                <span class="icon">🚪</span> Cerrar Sesión
+                                {#if isSigningOut}
+                                    <span class="spinner"></span>
+                                    <span class="btn-text">Saliendo...</span>
+                                {:else}
+                                    <span class="icon">🚪</span>
+                                    <span class="btn-text">Cerrar Sesión</span>
+                                {/if}
                             </button>
                         </div>
                     </div>
@@ -539,5 +562,36 @@
     button:focus {
         outline: 2px solid #4cc9f0;
         outline-offset: 2px;
+    }
+    
+    .loader,
+    .spinner {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 8px;
+    }
+
+    .btn-text {
+        margin-left: 4px;
+    }
+
+    .signout-btn.loading {
+        opacity: 0.8;
+        cursor: wait;
+    }
+
+    .user-dropdown-toggle[disabled],
+    .signout-btn[disabled] {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
     }
 </style>
