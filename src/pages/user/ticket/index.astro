@@ -8,7 +8,7 @@ const isEmailVerified = Astro.locals.user.emailVerified;
 <Layout>
 	{
 		isEmailVerified ? (
-			<SubmitTicket />
+			<SubmitTicket client:idle />
 		) : (
 		
 				<main class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
