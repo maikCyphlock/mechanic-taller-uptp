@@ -12,7 +12,7 @@ export default defineConfig({
         PoweredWebAppBuilder({
             isManifest: true,
             createManifest: true,
-            manifestPath: "manifest.json",
+            manifestPath: "public/manifest.json",
             manifest: {
                 name: "Taller UPTP",
                 short_name: "TallerUPTP",
