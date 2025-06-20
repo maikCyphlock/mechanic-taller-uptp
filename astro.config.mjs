@@ -1,11 +1,10 @@
-// @ts-check
+
 import { defineConfig } from 'astro/config';
 import PoweredWebAppBuilder from "webapp-astro-pwa/pwa";
 import svelte from "@astrojs/svelte";
 import node from '@astrojs/node'
 import tailwindcss from "@tailwindcss/vite";
-import path from 'path';
-
+import vercel from "@astrojs/vercel";
 // https://astro.build/config
 export default defineConfig({
     output: 'server',
