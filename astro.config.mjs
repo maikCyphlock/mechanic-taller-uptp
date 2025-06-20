@@ -1,11 +1,9 @@
-// @ts-check
 import { defineConfig } from 'astro/config';
 import PoweredWebAppBuilder from "webapp-astro-pwa/pwa";
 import svelte from "@astrojs/svelte";
 import node from '@astrojs/node'
 import tailwindcss from "@tailwindcss/vite";
-
-import vercel from "@astrojs/vercel";
+import path from 'path';
 
 // https://astro.build/config
 export default defineConfig({
@@ -24,7 +22,12 @@ export default defineConfig({
         host: "0.0.0.0"
     },
     vite:{
-        plugins:[tailwindcss()]
+        plugins:[tailwindcss()],
+        resolve: {
+            alias: {
+                '@': path.resolve('./src')
+            }
+        }
     },
 
 

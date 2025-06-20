@@ -1,26 +1,66 @@
 ---
-import Layout from "../layout/layout.astro"
-import SubmitTicket from "../components/submitTicket.svelte"
+import Layout from "@/layout/layout.astro"
 
-const isEmailVerified = Astro.locals.user.emailVerified
-console.log("isEmailVerified",isEmailVerified )
+const isEmailVerified = Astro.locals.user?.emailVerified
 ---
 <Layout>
-	{isEmailVerified ? (
-		<SubmitTicket client:load />
-	) : (
-		<h1>Debes verificar tu email para poder abrir un ticket. {}</h1>
-		<code>consulta con el administrador para que apruebe tu usuario</code>
-	)}
+  {isEmailVerified ? (
+    <main class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
+      <div class="max-w-2xl w-full space-y-8 text-center">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">Sistema de Tickets</h1>
+          <p class="text-lg text-gray-600">Seleccione una opción para continuar</p>
+        </div>
+        
+        <div class="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-2">
+          <!-- Abrir Ticket Card -->
+          <a 
+            href="user/ticket" 
+            class="group relative block p-8 border border-gray-200 rounded-xl hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+          >
+            <div class="text-center">
+              <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 group-hover:bg-blue-200 transition-colors duration-200">
+                <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </div>
+              <h3 class="mt-4 text-lg font-medium text-gray-900">Abrir Nuevo Ticket</h3>
+              <p class="mt-2 text-sm text-gray-500">Cree una nueva solicitud de soporte o reporte un problema</p>
+            </div>
+          </a>
+
+          <!-- Ver Tickets Card -->
+          <a 
+            href="user/dashboard" 
+            class="group relative block p-8 border border-gray-200 rounded-xl hover:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+          >
+            <div class="text-center">
+              <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 group-hover:bg-green-200 transition-colors duration-200">
+                <svg class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 class="mt-4 text-lg font-medium text-gray-900">Ver Tickets Abiertos</h3>
+              <p class="mt-2 text-sm text-gray-500">Revise el estado de sus tickets existentes</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </main>
+  ) : (
+    <main class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white p-4">
+      <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8 text-center">
+        <div class="mb-6">
+          <svg class="mx-auto h-16 w-16 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Verificación Requerida</h2>
+        <p class="text-gray-600 mb-6">Por favor verifique su correo electrónico para acceder al sistema.</p>
+        <a href="/auth/signin" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          Iniciar Sesión
+        </a>
+      </div>
+    </main>
+  )}
 </Layout>
-
-<style>
-h2 {
-    font-size: 2em;
-    font-weight: bold;
-    text-align: center;
-    color: #333;
-    margin: 20px 0;
-}
-
-</style>
