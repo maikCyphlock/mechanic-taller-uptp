@@ -4,6 +4,8 @@ import { Pool } from 'pg';
 import { loadEnv } from "vite";
 import * as Schema from "@/db/schema"
 
+
+
 const { DATABASE_URL } = loadEnv(process.env.NODE_ENV!, process.cwd(), "");
 // Crear el pool de conexiones
 const pool = new Pool({
@@ -11,7 +13,7 @@ const pool = new Pool({
 });
 
 // Crear y exportar la instancia de Drizzle
-export const db = drizzle(pool, { schema: Schema });
+export const db = drizzle(pool, { schema: Schema});
 
 // Exportar los operadores de Drizzle
 export { eq, and, or, desc, asc } from 'drizzle-orm';
