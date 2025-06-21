@@ -1,58 +1,72 @@
-<script>
-  export let userId;
-  export let Context;
+<script lang="ts">
   import { onMount } from 'svelte';
 
+  export let userId: string;
+
   let user = {
+    id: userId,
     name: '',
     email: '',
     phone: '',
     address: '',
     cedula: '',
-    password:''
+    password: ''
   };
 
   let message = '';
+  let messageType: 'success' | 'error' | '' = '';
   let isEditing = false;
   let isLoading = true;
 
-  // Obtener configuración actual del usuario
   onMount(async () => {
     try {
-      const response = await fetch('/api/user/getbyId?id=' + userId);
+      const response = await fetch(`/api/user/getbyId?id=${userId}`);
       if (response.ok) {
-        user = await response.json();
+        const data = await response.json();
+        user = { ...user, ...data };
       } else {
-        message = 'Error al cargar la configuración del usuario';
+        showToast('Error al cargar los datos del perfil', 'error');
       }
     } catch (error) {
-      message = 'Error al cargar la configuración';
+      showToast('Error de conexión al cargar el perfil', 'error');
     } finally {
       isLoading = false;
     }
   });
 
-  // Actualizar configuración del usuario
-  async function actualizarConfiguracion() {
+  async function updateSettings() {
+    isLoading = true;
     try {
-      const response = await fetch('/api/user/update/id', {
+      const response = await fetch('/api/user/modify', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: userId,
-          userData: user
-        })
+        body: JSON.stringify(user)
       });
 
       if (response.ok) {
-        message = 'Configuración actualizada exitosamente';
+        showToast('Perfil actualizado exitosamente');
         isEditing = false;
+        if (user.password) {
+            user.password = ''; // Clear password field after update
+        }
       } else {
-        message = 'Error al actualizar la configuración';
+        const errorData = await response.json();
+        showToast(`Error al actualizar: ${errorData.error || 'error desconocido'}`, 'error');
       }
     } catch (error) {
-      message = 'Error al actualizar la configuración';
+      showToast('Error de conexión al actualizar el perfil', 'error');
+    } finally {
+      isLoading = false;
     }
+  }
+
+  function showToast(msg: string, type: 'success' | 'error' = 'success') {
+    message = msg;
+    messageType = type;
+    setTimeout(() => {
+      message = '';
+      messageType = '';
+    }, 3000);
   }
 
   function toggleEdit() {
@@ -60,217 +74,244 @@
   }
 </script>
 
-<div class="settings-container">
-  <div class="header">
-    <h1>Configuración del Perfil</h1>
-    {#if !isEditing}
-      <button on:click={toggleEdit} class="edit-button">Editar Perfil</button>
+<div class="settings-page">
+  {#if message}
+    <div class="toast {messageType}">{message}</div>
+  {/if}
+
+  <div class="settings-card">
+    <div class="card-header">
+      <h2>Mi Perfil</h2>
+      {#if !isEditing}
+        <button on:click={toggleEdit} class="btn-edit">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+          </svg>
+          Editar
+        </button>
+      {/if}
+    </div>
+
+    {#if isLoading && !isEditing}
+      <div class="loading-state">Cargando tu perfil...</div>
+    {:else if isEditing}
+      <form on:submit|preventDefault={updateSettings} class="profile-form">
+        <div class="grid">
+            <div class="form-group">
+              <label for="name">Nombre</label>
+              <input id="name" type="text" bind:value={user.name} required />
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input id="email" type="email" bind:value={user.email} required />
+            </div>
+            <div class="form-group">
+              <label for="phone">Teléfono</label>
+              <input id="phone" type="tel" bind:value={user.phone} />
+            </div>
+            <div class="form-group">
+              <label for="cedula">Cédula</label>
+              <input id="cedula" type="text" bind:value={user.cedula} />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="address">Dirección</label>
+            <input id="address" type="text" bind:value={user.address} />
+          </div>
+        <div class="form-group password-field">
+            <label for="password">Nueva Contraseña</label>
+            <input id="password" type="password" bind:value={user.password} placeholder="Dejar en blanco para no cambiar" />
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" on:click={toggleEdit} class="btn-cancel">Cancelar</button>
+          <button type="submit" class="btn-save" disabled={isLoading}>
+            {#if isLoading}
+                <div class="spinner"></div> Guardando...
+            {:else}
+                Guardar Cambios
+            {/if}
+          </button>
+        </div>
+      </form>
+    {:else}
+      <div class="profile-view">
+        <div class="field">
+          <strong>Nombre:</strong>
+          <span>{user.name || 'N/A'}</span>
+        </div>
+        <div class="field">
+          <strong>Email:</strong>
+          <span>{user.email || 'N/A'}</span>
+        </div>
+        <div class="field">
+          <strong>Teléfono:</strong>
+          <span>{user.phone || 'N/A'}</span>
+        </div>
+        <div class="field">
+            <strong>Cédula:</strong>
+            <span>{user.cedula || 'N/A'}</span>
+        </div>
+        <div class="field">
+          <strong>Dirección:</strong>
+          <span>{user.address || 'N/A'}</span>
+        </div>
+      </div>
     {/if}
   </div>
- 
-  {#if message}
-    <p class:success={!message.includes('Error')} class:error={message.includes('Error')}>
-      {message}
-    </p>
-  {/if}
-
-  {#if isLoading}
-    <div class="loading">Cargando datos del perfil...</div>
-  {:else if isEditing}
-    <form on:submit|preventDefault={actualizarConfiguracion}>
-      <div class="form-group">
-        <label for="name">Nombre completo:</label>
-        <input id="name" type="text" bind:value={user.name} required />
-      </div>
-
-      <div class="form-group">
-        <label for="email">Correo electrónico:</label>
-        <input id="email" type="email" bind:value={user.email} required />
-      </div>
-
-      <div class="form-group">
-        <label for="phone">Teléfono:</label>
-        <input id="phone" type="tel" bind:value={user.phone} />
-      </div>
-
-      <div class="form-group">
-        <label for="address">Dirección residencial:</label>
-        <input id="address" type="text" bind:value={user.address} />
-      </div>
-
-      <div class="form-group">
-        <label for="cedula">Número de cédula de identidad:</label>
-        <input id="cedula" type="text" bind:value={user.cedula}  />
-      </div>
-
-      <div class="form-actions">
-        <button type="button" on:click={toggleEdit} class="cancel-button">Cancelar</button>
-        <button type="submit" class="save-button">Guardar Cambios</button>
-      </div>
-    </form>
-  {:else}
-    <div class="profile-view">
-      <div class="profile-field">
-        <span class="label">Nombre completo:</span>
-        <span class="value">{user.name || 'No especificado'}</span>
-      </div>
-
-      <div class="profile-field">
-        <span class="label">Correo electrónico:</span>
-        <span class="value">{user.email || 'No especificado'}</span>
-      </div>
-
-      <div class="profile-field">
-        <span class="label">Teléfono:</span>
-        <span class="value">{user.phone || 'No especificado'}</span>
-      </div>
-
-      <div class="profile-field">
-        <span class="label">Dirección:</span>
-        <span class="value">{user.address || 'No especificada'}</span>
-      </div>
-
-      <div class="profile-field">
-        <span class="label">Cédula de identidad:</span>
-        <span class="value">{user.cedula || 'No especificada'}</span>
-      </div>
-      
-    </div>
-  {/if}
 </div>
 
 <style>
-  .settings-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: Arial, sans-serif;
+  .settings-page {
+    max-width: 700px;
+    margin: 2rem auto;
+    font-family: 'Inter', sans-serif;
   }
-
-  .header {
+  .settings-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  .card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
   }
-
-  h1 {
+  .card-header h2 {
     margin: 0;
-    color: #2c3e50;
-  }
-
-  .edit-button, .save-button, .cancel-button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .edit-button {
-    background-color: #3498db;
-    color: white;
-  }
-
-  .edit-button:hover {
-    background-color: #2980b9;
-  }
-
-  .form-group {
-    margin-bottom: 20px;
-  }
-
-  label {
-    display: block;
-    margin-bottom: 8px;
+    font-size: 1.25rem;
     font-weight: 600;
-    color: #2c3e50;
+    color: #111827;
   }
-
-  input {
+  .profile-form, .profile-view {
+    padding: 1.5rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  .form-group.password-field {
+      margin-top: 1rem;
+  }
+  .form-group label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #374151;
+    font-size: 0.875rem;
+  }
+  .form-group input {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
     font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
-
-  input:disabled {
-    background-color: #f5f5f5;
-    cursor: not-allowed;
+  .form-group input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
   }
-
   .form-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    margin-top: 30px;
+    gap: 0.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 1.5rem;
   }
-
-  .save-button {
-    background-color: #2ecc71;
+  .btn-edit, .btn-save, .btn-cancel {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn-edit {
+    background-color: transparent;
+    color: #3b82f6;
+    border: 1px solid #d1d5db;
+  }
+  .btn-edit:hover {
+      background-color: #f9fafb;
+  }
+  .btn-save {
+    background-color: #2563eb;
     color: white;
   }
-
-  .save-button:hover {
-    background-color: #27ae60;
+  .btn-save:hover {
+    background-color: #1d4ed8;
   }
-
-  .cancel-button {
-    background-color: #95a5a6;
-    color: white;
+   .btn-save:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
   }
-
-  .cancel-button:hover {
-    background-color: #7f8c8d;
+  .btn-cancel {
+    background-color: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
   }
-
-  .profile-view {
-    background: white;
-    padding: 25px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  .btn-cancel:hover {
+    background-color: #f9fafb;
   }
-
-  .profile-field {
-    padding: 12px 0;
-    border-bottom: 1px solid #eee;
+  .profile-view .field {
     display: flex;
     justify-content: space-between;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  .profile-view .field:last-child {
+      border-bottom: none;
+  }
+  .profile-view .field strong {
+    color: #6b7280;
+  }
+  .profile-view .field span {
+    color: #111827;
+  }
+  .loading-state {
+      text-align: center;
+      padding: 3rem;
+      color: #6b7280;
   }
 
-  .profile-field:last-child {
-    border-bottom: none;
+  .toast {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 1rem 1.5rem;
+    border-radius: 6px;
+    color: white;
+    z-index: 1000;
+    font-weight: 500;
+  }
+  .toast.success { background-color: #2563eb; }
+  .toast.error { background-color: #dc2626; }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
   }
 
-  .profile-field .label {
-    font-weight: 600;
-    color: #7f8c8d;
-  }
-
-  .message {
-    padding: 10px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-    text-align: center;
-  }
-
-  .success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-  }
-
-  .error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-  }
-
-  .loading {
-    text-align: center;
-    padding: 20px;
-    color: #7f8c8d;
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 </style>

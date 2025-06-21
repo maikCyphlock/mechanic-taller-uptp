@@ -4,6 +4,7 @@
   let name = '';
   let phone = '';
   let cedula = '';
+  let plate = ''
   // vehicleType will now be bound to the value of the selected radio button
   let vehicleType = '';
 
@@ -22,7 +23,8 @@
     { value: 'camioneta', icon: '🚚' },
     { value: 'camion', icon: '🚛' },
     { value: 'motocicleta', icon: '🏍️' },
-    { value: 'otro', icon: '❓' }
+    { value: 'otro', icon: '❓' },
+    { value: 'autobus', icon: '🚛' }
   ];
 
   const commonIssues = [
@@ -105,6 +107,7 @@
           phone,
           vehicleDetails: {
             type: vehicleType,
+            plate: plate
           },
           issueType,
           issueDescription,
@@ -191,6 +194,11 @@
           <label for="issueDescription" class="block text-gray-600 font-medium mb-2">Descripción Detallada <span class="text-red-500">*</span></label>
           <textarea id="issueDescription" bind:value={issueDescription} placeholder="Describa el problema (sonidos, cuándo ocurre, etc.)" rows="4" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
           <p class="text-sm text-gray-500 mt-2">Este campo es clave para el diagnóstico inicial.</p>
+        </div>
+        <div class="mb-4">
+          <label for="plate" class="block text-gray-600 font-medium mb-2">placa del vehiculo<span class="text-red-500">*</span></label>
+          <input id="plate" bind:value={plate} placeholder="AZK332J" rows="4" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <p class="text-sm text-gray-500 mt-2">asegurate de colocar bien los números de la placa.</p>
         </div>
       </div>
     {/if}
