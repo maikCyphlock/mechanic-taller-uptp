@@ -59,6 +59,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         id: vehicleID,
         type: vehicleDetails.type,
         ownerId: clientID,
+        plate: vehicleDetails.plate
       });
 
       await tx.insert(vehicleIssue).values({
