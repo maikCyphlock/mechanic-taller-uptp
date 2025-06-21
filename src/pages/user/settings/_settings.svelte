@@ -8,7 +8,8 @@
     email: '',
     phone: '',
     address: '',
-    cedula: ''
+    cedula: '',
+    password:''
   };
 
   let message = '';
@@ -99,7 +100,7 @@
 
       <div class="form-group">
         <label for="cedula">Número de cédula de identidad:</label>
-        <input id="cedula" type="text" bind:value={user.cedula} disabled />
+        <input id="cedula" type="text" bind:value={user.cedula}  />
       </div>
 
       <div class="form-actions">
@@ -133,6 +134,7 @@
         <span class="label">Cédula de identidad:</span>
         <span class="value">{user.cedula || 'No especificada'}</span>
       </div>
+      
     </div>
   {/if}
 </div>

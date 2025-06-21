@@ -1,148 +1,75 @@
 // src/pages/api/user/modify.ts
 import type { APIRoute } from 'astro';
 import { auth } from '@/lib/auth';
-import { user } from '@/db/schema';
+import { user, account } from '@/db/schema';
 import { db } from '@/lib/db';
-import { eq } from 'drizzle-orm';
-interface UserUpdateData {
-  name?: string;
-  email?: string;
-  phone?: string;
-  role?: string;
-  banned?: boolean;
-}
+import { eq, and } from 'drizzle-orm';
+import type { InferInsertModel } from 'drizzle-orm';
 
-// src/pages/api/user/modify.ts
-export const getUserById = async (userId: string, context: any) => {
-    try {
-      const session = await auth.api.getSession({
-        headers: context.request.headers,
-      });
-  
-      if (!session?.user) {
-        return new Response(
-          JSON.stringify({ error: 'No autorizado' }),
-          { status: 401, headers: { 'Content-Type': 'application/json' } }
-        );
-      }
-  
-      // Reemplazar auth.api.getUser con el método correcto de tu API de autenticación
-      // Opción 1: Si usas una base de datos directamente
-      // const user = await db.user.findUnique({ where: { id: userId } });
-      
-      // Opción 2: Si usas la sesión actual (si es el mismo usuario)
-      const result = await db
-      .select()
-      .from(user)
-      .where(eq(user.id, userId))
-      .execute();
-
-    // Tomar el primer resultado (asumiendo que el ID es único)
-    const userData = result[0];
-      
-      // Opción 3: Si usas un servicio de usuarios
-      // const user = await userService.getUserById(userId);
-  
-      if (!userData) {
-        return new Response(
-          JSON.stringify({ error: 'Usuario no encontrado' }),
-          { status: 404, headers: { 'Content-Type': 'application/json' } }
-        );
-      }
-  
-      return new Response(
-        JSON.stringify(userData),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
-      );
-    } catch (error) {
-      console.error('Error getting user:', error);
-      return new Response(
-        JSON.stringify({ 
-          error: 'Error al obtener el usuario',
-          details: error.message 
-        }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-  };
+type UserInsert = InferInsertModel<typeof user>;
 
 export const PUT: APIRoute = async ({ request }) => {
   try {
-    const res = await request.json();
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
 
-    const { id, name, email, phone, role, banned, banReason, banExpires, cedula, emailVerified, image } = res;
-
-    if (!id) {
-      return new Response(
-        JSON.stringify({ error: 'ID de usuario no proporcionado' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+    if (!session?.user ) {
+      return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401 });
     }
 
-    // Construir el objeto de actualización dinámicamente
-    const updateData: Partial<typeof user> = {};
-    if (name) updateData.name = name;
-    if (email) updateData.email = email;
-    if (phone) updateData.phone = phone;
-    if (role) updateData.role = role;
-    if (banned !== undefined) updateData.banned = banned;
-    if (banReason) updateData.banReason = banReason;
-    if (banExpires) updateData.banExpires = new Date(banExpires);
-    if (cedula) updateData.cedula = cedula;
-    if (emailVerified !== undefined) updateData.emailVerified = emailVerified;
-    if (image) updateData.image = image;
+    const body = await request.json();
+    const { id, password, ...userData } = body;
 
-    // Actualizar el usuario en la base de datos
-    const [updatedUser] = await db
-      .update(user)
-      .set(updateData)
-      .where(eq(user.id, id))
-      .returning();
+    if (!id) {
+      return new Response(JSON.stringify({ error: 'ID de usuario no proporcionado' }), { status: 400 });
+    }
+
+    // Update user personal data
+    if (Object.keys(userData).length > 0) {
+        const updateData: Partial<UserInsert> = {};
+        if (userData.name) updateData.name = userData.name;
+        if (userData.email) updateData.email = userData.email;
+        if (userData.phone) updateData.phone = userData.phone;
+        if (userData.role) updateData.role = userData.role;
+        if (userData.banned !== undefined) updateData.banned = userData.banned;
+        if (userData.banReason) updateData.banReason = userData.banReason;
+        if (userData.banExpires) updateData.banExpires = new Date(userData.banExpires);
+        if (userData.cedula) updateData.cedula = userData.cedula;
+        if (userData.emailVerified !== undefined) updateData.emailVerified = userData.emailVerified;
+        if (userData.image) updateData.image = userData.image;
+
+        await db
+            .update(user)
+            .set(updateData)
+            .where(eq(user.id, id));
+    }
+
+    // Update password if provided
+  
+    if (password) {
+        if(password.trim() == '') return
+        const ctx = await auth.$context;
+        const hashedPassword = await ctx.password.hash(password);
+
+        await db.update(account).set({
+            password: hashedPassword
+        }).where(and(
+            eq(account.userId, id),
+            eq(account.providerId, 'credential')
+        ));
+    }
 
     return new Response(
-      JSON.stringify({ message: 'Usuario actualizado correctamente', updatedUser }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ message: 'Usuario actualizado correctamente' }),
+      { status: 200 }
     );
   } catch (error) {
     console.error('Error updating user:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
     return new Response(
-      JSON.stringify({ error: 'Error al actualizar el usuario' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: 'Error al actualizar el usuario', details: errorMessage }),
+      { status: 500 }
     );
   }
-};
-
-// API endpoint handler
-export const post: APIRoute = async ({ request }) => {
-  try {
-    const data = await request.json();
-    const { userId, ...updateData } = data;
-    
-    if (!userId) {
-      return new Response(
-        JSON.stringify({ error: 'ID de usuario no proporcionado' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
-
-    return await updateUser(userId, updateData, { request });
-  } catch (error) {
-    console.error('Error in API route:', error);
-    return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: 'Error en el servidor',
-        details: error.message 
-      }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-};
-
-// Handle other HTTP methods
-export const all: APIRoute = ({ request }) => {
-  return new Response(
-    JSON.stringify({ error: 'Método no permitido' }),
-    { status: 405, headers: { 'Content-Type': 'application/json' } }
-  );
 };
