@@ -1,251 +1,367 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { fade } from 'svelte/transition';
+	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 
-    export let id;
-    let userFound=[];
-    let success = false;
-    let error = '';
-    let loading = false;
+	export let id: string;
 
-    let user = {
-        id,
-        cedula: "",
-        name: "",
-        email: "",
-        emailVerified: false,
-        image: "",
-        phone: "",
-        role: "",
-        roleId: "",
-        banned: false,
-        banReason: "",
-        banExpires: null,
-    };
+	let user = {
+		id,
+		cedula: '',
+		name: '',
+		email: '',
+		password: '', // For password change
+		emailVerified: false,
+		image: '',
+		phone: '',
+		role: 'user',
+		banned: false,
+		banReason: '',
+		banExpires: null as string | null
+	};
 
-    // Fetch user data on mount
-    onMount(async () => {
-        try {
-            const res = await fetch("/api/user/getbyId", {
-                method: "POST",
-                body: JSON.stringify({ id }),
-               
-            });
+	let message = '';
+	let messageType: 'success' | 'error' = 'success';
+	let loading = true;
+	let submitting = false;
 
-            if (!res.ok) {
-                throw new Error("Error al obtener los datos del user");
-            }
+	function formatDateForInput(dateString: string | null) {
+		if (!dateString) return null;
+		const date = new Date(dateString);
+		if (isNaN(date.getTime())) return null;
+		// Format to "yyyy-MM-ddThh:mm"
+		const pad = (num: number) => num.toString().padStart(2, '0');
+		return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
+			date.getHours()
+		)}:${pad(date.getMinutes())}`;
+	}
 
-            userFound = await res.json();
-       
-          
-            user = { ...user, ...userFound };
-        } catch (err) {
-            console.error(err);
-            error = "No se pudo cargar la información del usere.";
-        }
-    });
+	onMount(async () => {
+		try {
+			const res = await fetch('/api/user/getbyId', {
+				method: 'POST',
+				body: JSON.stringify({ id }),
+				headers: { 'Content-Type': 'application/json' }
+			});
 
-    // Handle form submission
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        loading = true;
-        error = '';
-        success = false;
+			if (!res.ok) {
+				throw new Error('Error al obtener los datos del usuario');
+			}
 
-        try {
-            const res = await fetch('/api/user/modify', {
-                method: 'PUT',
-                body: JSON.stringify(user),
-                headers: { 'Content-Type': 'application/json' },
-            });
+			const userData = await res.json();
+			user = {
+				...user,
+				...userData,
+				banExpires: formatDateForInput(userData.banExpires)
+			};
+		} catch (err) {
+			showToast('No se pudo cargar la información del usuario.', 'error');
+		} finally {
+			loading = false;
+		}
+	});
 
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.error || 'Error al actualizar el usere');
-            }
+	const handleSubmit = async (event: SubmitEvent) => {
+		event.preventDefault();
+		submitting = true;
 
-            success = true;
+		try {
+			const payload = { ...user };
+			if (payload.password === '') {
+				delete (payload as any).password;
+			}
 
-            // Hide success message after 3 seconds
-            setTimeout(() => {
-                success = false;
-            }, 3000);
-        } catch (err) {
-            console.error(err);
-            error = "Error al actualizar el user.";
-        } finally {
-            loading = false;
-        }
-    };
+			const res = await fetch('/api/user/modify', {
+				method: 'PUT',
+				body: JSON.stringify(payload),
+				headers: { 'Content-Type': 'application/json' }
+			});
+
+			if (!res.ok) {
+				const data = await res.json();
+				throw new Error(data.error || 'Error al actualizar el usuario');
+			}
+			if (user.password) {
+				user.password = '';
+			}
+			showToast('¡Usuario actualizado correctamente!');
+		} catch (err: any) {
+			showToast(err.message || 'Error al actualizar el usuario.', 'error');
+		} finally {
+			submitting = false;
+		}
+	};
+
+	function showToast(msg: string, type: 'success' | 'error' = 'success') {
+		message = msg;
+		messageType = type;
+		setTimeout(() => {
+			message = '';
+		}, 3000);
+	}
 </script>
 
-<div class="max-w-4xl mx-auto py-8 px-4">
-    {#if success}
-        <div class="mb-4 bg-green-50 border-l-4 border-green-400 p-4" transition:fade>
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm text-green-700">¡Usuario actualizado correctamente!</p>
-                </div>
-            </div>
-        </div>
-    {/if}
+{#if message}
+	<div class="toast {messageType}" transition:fade>
+		{message}
+	</div>
+{/if}
 
-    {#if error}
-        <div class="mb-4 bg-red-50 border-l-4 border-red-400 p-4" transition:fade>
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm text-red-700">{error}</p>
-                </div>
-            </div>
-        </div>
-    {/if}
+<div class="page-container">
+	<h1 class="page-title">Editar Usuario</h1>
+	{#if loading}
+		<div class="card">
+			<div class="card-body">
+				<div class="skeleton-line title"></div>
+				<div class="skeleton-line"></div>
+				<div class="skeleton-line"></div>
+				<div class="skeleton-line short"></div>
+			</div>
+		</div>
+	{:else}
+		<form on:submit={handleSubmit} class="card">
+			<div class="card-body">
+				<div class="grid-layout">
+					<!-- Personal Information -->
+					<div class="form-group">
+						<label for="name">Nombre completo</label>
+						<input id="name" type="text" bind:value={user.name} required />
+					</div>
+					<div class="form-group">
+						<label for="email">Correo electrónico</label>
+						<input id="email" type="email" bind:value={user.email} required />
+					</div>
+					<div class="form-group">
+						<label for="phone">Teléfono</label>
+						<input id="phone" type="tel" bind:value={user.phone} />
+					</div>
+					<div class="form-group">
+						<label for="cedula">Cédula</label>
+						<input id="cedula" type="text" bind:value={user.cedula} />
+					</div>
+					<div class="form-group">
+						<label for="role">Rol</label>
+						<select id="role" bind:value={user.role}>
+							<option value="user">Mecánico</option>
+							<option value="admin">Administrador</option>
+							<option value="SUPERADMIN">Super Admin</option>
+							<option value="CLIENTE">Cliente</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="password">Nueva Contraseña</label>
+						<input
+							id="password"
+							type="password"
+							bind:value={user.password}
+							placeholder="Dejar en blanco para no cambiar"
+						/>
+					</div>
+					<div class="form-group full-width">
+						<label for="image">URL de la Imagen</label>
+						<input id="image" type="text" bind:value={user.image} />
+					</div>
+					<div class="form-group checkbox-group">
+						<input id="emailVerified" type="checkbox" bind:checked={user.emailVerified} />
+						<label for="emailVerified">Email Verificado</label>
+					</div>
+				</div>
 
-    <form on:submit={handleSubmit} class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div class="px-4 py-5 sm:px-6">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">
-                Información del Usuario
-            </h3>
-        </div>
-        <div class="border-t border-gray-200">
-            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <label for="name" class="block text-sm font-medium text-gray-500">Nombre completo</label>
-                <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input
-                        type="text"
-                        id="name"
-                        bind:value={user.name}
-                        class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                        required
-                    />
-                </div>
-            </div>
-
-            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 border-t border-gray-200">
-                <label for="email" class="block text-sm font-medium text-gray-500">Correo electrónico</label>
-                <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input
-                        type="email"
-                        id="email"
-                        bind:value={user.email}
-                        class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                        required
-                    />
-                </div>
-            </div>
-
-            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 border-t border-gray-200">
-                <label for="phone" class="block text-sm font-medium text-gray-500">Teléfono</label>
-                <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input
-                        type="tel"
-                        id="phone"
-                        bind:value={user.phone}
-                        class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                    />
-                </div>
-            </div>
-
-            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 border-t border-gray-200">
-              <label for="role" class="block text-sm font-medium text-gray-500">Rol</label>
-              <div class="mt-1 sm:mt-0 sm:col-span-2">
-                <select
-                  id="role"
-                  bind:value={user.role}
-                  class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                >
-                  <option value="user">Mecánico</option>
-                  <option value="admin">Administrador</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 border-t border-gray-200">
-                <label for="emailVerified" class="block text-sm font-medium text-gray-500">usuario verificado</label>
-                <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input
-                        type="checkbox"
-                        id="emailVerified"
-                        bind:checked={user.emailVerified}
-                        
-                    />
-                </div>
-            </div>
-
-            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 border-t border-gray-200">
-                <label for="banned" class="block text-sm font-medium text-gray-500">¿Está baneado?</label>
-                <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input
-                        type="checkbox"
-                        id="banned"
-                        bind:checked={user.banned}
-                        class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block sm:text-sm border-gray-300 rounded-md"
-                    />
-                </div>
-            </div>
-
-            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 border-t border-gray-200">
-                <label for="banReason" class="block text-sm font-medium text-gray-500">Razón del Ban</label>
-                <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input
-                        type="text"
-                        id="banReason"
-                        bind:value={user.banReason}
-                        class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                    />
-                </div>
-            </div>
-
-            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 border-t border-gray-200">
-                <label for="banExpires" class="block text-sm font-medium text-gray-500">Expiración del Ban</label>
-                <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input
-                        type="datetime-local"
-                        id="banExpires"
-                        bind:value={user.banExpires}
-                        class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                    />
-                </div>
-            </div>
-
-            <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 border-t border-gray-200">
-                <label for="image" class="block text-sm font-medium text-gray-500">Imagen</label>
-                <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <input
-                        type="text"
-                        id="image"
-                        bind:value={user.image}
-                        class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
-                    />
-                </div>
-            </div>
-        </div>
-        <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
-            <button
-                type="submit"
-                class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                disabled={loading}
-            >
-                {#if loading}
-                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Guardando...
-                {:else}
-                    Guardar cambios
-                {/if}
-            </button>
-        </div>
-    </form>
+				<!-- Ban Information -->
+				<h2 class="section-title">Control de Acceso</h2>
+				<div class="grid-layout">
+					<div class="form-group checkbox-group">
+						<input id="banned" type="checkbox" bind:checked={user.banned} />
+						<label for="banned">Usuario Baneado</label>
+					</div>
+					<div class="form-group">
+						<label for="banReason">Razón del Ban</label>
+						<input id="banReason" type="text" bind:value={user.banReason} disabled={!user.banned} />
+					</div>
+					<div class="form-group">
+						<label for="banExpires">Expiración del Ban</label>
+						<input
+							id="banExpires"
+							type="datetime-local"
+							bind:value={user.banExpires}
+							disabled={!user.banned}
+						/>
+					</div>
+				</div>
+			</div>
+			<div class="card-footer">
+				<button type="submit" class="btn btn-primary" disabled={submitting}>
+					{#if submitting}
+						<div class="spinner"></div>
+						Guardando...
+					{:else}
+						Guardar Cambios
+					{/if}
+				</button>
+			</div>
+		</form>
+	{/if}
 </div>
+
+<style>
+	.page-container {
+		max-width: 800px;
+		margin: 2rem auto;
+		padding: 0 1rem;
+		font-family: 'Inter', sans-serif;
+	}
+	.page-title {
+		font-size: 1.75rem;
+		font-weight: 700;
+		color: #111827;
+		margin-bottom: 1.5rem;
+	}
+	.card {
+		background: white;
+		border-radius: 12px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+		overflow: hidden;
+	}
+	.card-body {
+		padding: 1.5rem 2rem;
+	}
+	.card-footer {
+		background-color: #f9fafb;
+		padding: 1rem 2rem;
+		text-align: right;
+		border-top: 1px solid #e5e7eb;
+	}
+	.grid-layout {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+		gap: 1.5rem;
+	}
+	.form-group {
+		display: flex;
+		flex-direction: column;
+	}
+	.form-group.full-width {
+		grid-column: 1 / -1;
+	}
+	.form-group label {
+		font-weight: 500;
+		margin-bottom: 0.5rem;
+		color: #374151;
+		font-size: 0.875rem;
+	}
+	.form-group input,
+	.form-group select {
+		width: 100%;
+		padding: 0.75rem;
+		border: 1px solid #d1d5db;
+		border-radius: 6px;
+		font-size: 1rem;
+		transition: border-color 0.2s, box-shadow 0.2s;
+	}
+	.form-group input:focus,
+	.form-group select:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+	}
+	.checkbox-group {
+		flex-direction: row;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	.checkbox-group input {
+		width: auto;
+		height: 1rem;
+		width: 1rem;
+	}
+	.checkbox-group label {
+		margin-bottom: 0;
+	}
+	.section-title {
+		font-size: 1.25rem;
+		font-weight: 600;
+		color: #111827;
+		margin-top: 2rem;
+		margin-bottom: 1.5rem;
+		padding-bottom: 0.5rem;
+		border-bottom: 1px solid #e5e7eb;
+	}
+	.btn {
+		padding: 0.6rem 1.2rem;
+		border: none;
+		border-radius: 6px;
+		font-size: 0.9rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: background-color 0.2s;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	.btn-primary {
+		background-color: #2563eb;
+		color: white;
+	}
+	.btn-primary:hover {
+		background-color: #1d4ed8;
+	}
+	.btn-primary:disabled {
+		background-color: #9ca3af;
+		cursor: not-allowed;
+	}
+	.toast {
+		position: fixed;
+		top: 20px;
+		left: 50%;
+		transform: translateX(-50%);
+		padding: 1rem 1.5rem;
+		border-radius: 6px;
+		color: white;
+		z-index: 1000;
+		font-weight: 500;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	}
+	.toast.success {
+		background-color: #2563eb;
+	}
+	.toast.error {
+		background-color: #dc2626;
+	}
+	.spinner {
+		width: 16px;
+		height: 16px;
+		border: 2px solid rgba(255, 255, 255, 0.3);
+		border-top-color: white;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.skeleton-line {
+		height: 1rem;
+		background-color: #e5e7eb;
+		border-radius: 4px;
+		margin-bottom: 1rem;
+		animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	}
+	.skeleton-line.title {
+		width: 40%;
+		height: 1.5rem;
+		margin-bottom: 1.5rem;
+	}
+	.skeleton-line.short {
+		width: 60%;
+	}
+	@keyframes pulse {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.5;
+		}
+	}
+</style>

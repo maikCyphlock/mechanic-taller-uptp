@@ -48,7 +48,8 @@
             <p class="text-xl font-extrabold text-blue-700 tracking-tight">ID: {ticket.id}</p>
             <p class="text-base"><span class="font-semibold">Cliente:</span> {ticket.clients.name}</p>
             <p class="text-base"><span class="font-semibold">Teléfono:</span> {ticket.clients.phone}</p>
-            <p class="text-base"><span class="font-semibold">Vehículo:</span> {ticket.vehicleDetails.brand} {ticket.vehicleDetails.model} <span class="text-gray-500">({ticket.vehicleDetails.type})</span></p>
+            <p class="text-base"><span class="font-semibold">Vehículo:</span> {ticket.vehicleDetails.brand} {ticket.vehicleDetails.model} <span class="text-gray-500">{ticket.vehicleDetails.type}</span></p>
+            <p class="text-base"><span class="font-semibold">Placa:</span> {ticket.vehicleDetails.plate} </p>
             <div class="flex flex-wrap gap-2 items-center mt-1">
               <span class="px-2 py-1 text-xs font-bold rounded-full bg-blue-600 text-white">{ticket.status}</span>
               <span class="px-2 py-1 text-xs font-bold rounded-full {ticket.priority === 'ALTA' ? 'bg-red-600' : ticket.priority === 'MEDIA' ? 'bg-yellow-500' : 'bg-green-600'} text-white">{ticket.priority || 'N/A'}</span>
