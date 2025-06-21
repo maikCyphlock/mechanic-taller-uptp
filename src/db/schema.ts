@@ -3,7 +3,7 @@ import { pgTable, text, timestamp, boolean, integer, decimal,pgEnum } from "driz
 export const statusTicketEnum = pgEnum("Status_Ticket", ["ABIERTO", "EN_PROCESO", "CERRADO", "CANCELADO","APROBADO"]);
 export const prioridadTicketEnum = pgEnum("Prioridad_Ticket", ["BAJA", "MEDIA", "ALTA"]);
 export const roleEnum = pgEnum("Role", ["user", "admin", "CLIENTE", "GERENTE", "OTRO","SUPERADMIN"]);
-export const tipoVehiculoEnum = pgEnum("Tipo_Vehiculo", ["automovil", "camioneta", "camion", "motocicleta",  "otro"]);
+export const tipoVehiculoEnum = pgEnum("Tipo_Vehiculo", ["automovil", "camioneta", "camion", "motocicleta","autobus",  "otro"]);
 export const paymentStatusEnum = pgEnum("Payment_Status", ["PENDIENTE", "COMPLETADO", "FALLIDO"]);
 export const paymentMethodEnum = pgEnum("Payment_Method", ["EFECTIVO", "TARJETA_CREDITO", "TARJETA_DEBITO", "TRANSFERENCIA_BANCARIA","PAGO_MOVIL", "OTRO"]);
 const TIMESTAMPS ={
