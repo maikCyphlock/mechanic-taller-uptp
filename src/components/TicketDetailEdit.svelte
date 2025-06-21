@@ -120,6 +120,7 @@
       <p class="text-base"><strong>Teléfono:</strong> {ticket.clients.phone}</p>
       {#if ticket.clients.email}<p class="text-base"><strong>Email:</strong> {ticket.clients.email}</p>{/if}
       <p class="text-base"><strong>Vehículo:</strong> {ticket.vehicleDetails.type} - {ticket.vehicleDetails.brand} {ticket.vehicleDetails.model} ({ticket.vehicleDetails.year})</p>
+      <p class="text-base"><strong>Placa:</strong> {ticket.vehicleDetails.plate} </p>
       <p class="text-base"><strong>Fecha de Reporte:</strong> {formatDate(ticket.createdAt)}</p>
       <p class="text-base"><strong>Tipo de Problema:</strong> {ticket.issueType}</p>
       <div class="bg-gray-100 border border-gray-300 p-3 rounded mt-3 text-sm">
