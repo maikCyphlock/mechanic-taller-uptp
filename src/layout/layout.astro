@@ -2,6 +2,7 @@
 import { PWA } from "webapp-astro-pwa";
 import Navbar from "@/components/navbar.svelte";
 import { ClientRouter } from 'astro:transitions';
+import { Toaster } from 'svelte-sonner';
 
 import './global.css'
 ---
@@ -20,6 +21,7 @@ import './global.css'
 	<body>
 	<Navbar client:idle />
 	<slot/>
+	<Toaster client:idle richColors />
 	</body>
 </html>
 
