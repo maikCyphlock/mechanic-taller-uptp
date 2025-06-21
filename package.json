@@ -29,6 +29,7 @@
     "drizzle-orm": "0.44.2",
     "pg": "^8.16.0",
     "svelte": "^5.30.1",
+    "svelte-sonner": "^1.0.5",
     "tailwindcss": "^4.1.7",
     "typescript": "^5.8.3",
     "webapp-astro-pwa": "^0.2.34"
