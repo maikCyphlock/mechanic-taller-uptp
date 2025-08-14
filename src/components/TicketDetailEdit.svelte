@@ -70,7 +70,7 @@
       }
       isLoading = true;
       try {
-        const data = await fetch(`/api/ticket/${ticket.id}/update`, {
+        const data = await fetch(`/api/ticket/${ticket.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json'

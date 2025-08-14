@@ -8,7 +8,7 @@
 
     onMount(async () => {
         try {
-            const response = await fetch('/api/vehiculo/getAll');
+            const response = await fetch('/api/vehiculo');
             if (!response.ok) throw new Error('Error al cargar los vehículos');
             const data = await response.json();
             vehicles.set(data);

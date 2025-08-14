@@ -17,7 +17,12 @@
     const handleDeleteButton = async (id) => {
         const wannaDelete = confirm("¿realmente quieres eliminarlo?")
         if (wannaDelete === false) return;
-        const POST = await fetch (`/api/ticket/${id}/delete`)
+        const response = await fetch(`/api/ticket/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+            tickets = tickets.filter(t => t.ticket.id !== id);
+        } else {
+            alert('Error al eliminar el ticket');
+        }
     }
 
     const convertTolocaleTime = (date) => {

@@ -1,13 +1,13 @@
-// src/pages/api/client/all.ts
+// src/pages/api/user/index.ts
 import type { APIRoute } from 'astro';
 import { db } from '@/lib/db';
-import { client } from '@/db/schema';
+import { user } from '@/db/schema';
 
-export const allclients: APIRoute = async () => {
+export const GET: APIRoute = async () => {
   try {
-    const clients = await db.select().from(client);
+    const users = await db.select().from(user);
 
-    return new Response(JSON.stringify({ clients }), {
+    return new Response(JSON.stringify({ users }), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -17,7 +17,7 @@ export const allclients: APIRoute = async () => {
       },
     });
   } catch (error) {
-    console.error('Error fetching clients:', error);
+    console.error('Error fetching users:', error);
     return new Response(
       JSON.stringify({ error: 'Internal Server Error' }),
       {

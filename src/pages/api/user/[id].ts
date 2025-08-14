@@ -1,29 +1,66 @@
-// src/pages/api/user/modify.ts
 import type { APIRoute } from 'astro';
-import { auth } from '@/lib/auth';
-import { user, account } from '@/db/schema';
 import { db } from '@/lib/db';
+import { user, account } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
+import { auth } from '@/lib/auth';
 import type { InferInsertModel } from 'drizzle-orm';
 
 type UserInsert = InferInsertModel<typeof user>;
 
-export const PUT: APIRoute = async ({ request }) => {
+// Get a single user by ID
+export const GET: APIRoute = async ({ params }) => {
+  const { id } = params;
+
+  if (!id) {
+    return new Response(JSON.stringify({ error: 'User ID is required' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  try {
+    const userFound = await db.select().from(user).where(eq(user.id, id));
+
+    if (userFound.length === 0) {
+      return new Response(JSON.stringify({ error: 'User not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response(JSON.stringify(userFound[0]), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+};
+
+// Update a user
+export const PUT: APIRoute = async ({ params, request }) => {
+  const { id } = params;
+  if (!id) {
+    return new Response(JSON.stringify({ error: 'User ID is required' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
   try {
     const session = await auth.api.getSession({
       headers: request.headers,
     });
 
-    if (!session?.user ) {
+    if (!session?.user) {
       return new Response(JSON.stringify({ error: 'No autorizado' }), { status: 401 });
     }
 
     const body = await request.json();
-    const { id, password, ...userData } = body;
-
-    if (!id) {
-      return new Response(JSON.stringify({ error: 'ID de usuario no proporcionado' }), { status: 400 });
-    }
+    const { password, ...userData } = body;
 
     // Update user personal data
     if (Object.keys(userData).length > 0) {
@@ -46,7 +83,6 @@ export const PUT: APIRoute = async ({ request }) => {
     }
 
     // Update password if provided
-  
     if (password) {
         if(password.trim() == '') return
         const ctx = await auth.$context;

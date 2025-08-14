@@ -98,7 +98,7 @@
 
     try {
         const apiHost = window.location.origin;
-      const response = await fetch(`${apiHost}/api/ticket/create`, {
+      const response = await fetch(`${apiHost}/api/ticket`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
