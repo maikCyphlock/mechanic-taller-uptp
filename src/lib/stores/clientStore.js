@@ -13,13 +13,12 @@ export const clientStore = writable({
 
 export const fetchClientById = async (id) => {
     try {
-        const res = await fetch("/api/client/getbyId", {
-            method: "POST",
-            body: JSON.stringify({ id })
+        const res = await fetch(`/api/client/${id}`, {
+            method: "GET"
         });
         const data = await res.json();
-        clientStore.set(data[0]);
-        return data[0];
+        clientStore.set(data);
+        return data;
     } catch (error) {
         console.error('Error fetching client:', error);
         throw error;
@@ -28,7 +27,7 @@ export const fetchClientById = async (id) => {
 
 export const updateClient = async (clientData) => {
     try {
-        const res = await fetch('/api/client/modify', {
+        const res = await fetch(`/api/client/${clientData.id}`, {
             body: JSON.stringify(clientData),
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' }

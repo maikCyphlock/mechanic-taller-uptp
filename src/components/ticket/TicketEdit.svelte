@@ -38,13 +38,13 @@
 
 	onMount(async () => {
 		try {
-			const response = await fetch(`/api/ticket/${idTicket}/get`);
+			const response = await fetch(`/api/ticket/${idTicket}`);
 			if (!response.ok) throw new Error('Failed to fetch ticket data');
 			const data = await response.json();
 
-			if (data && data.length > 0) {
-				const ticketData = data[0].ticket;
-				userName = data[0].user || 'No asignado';
+			if (data) {
+				const ticketData = data.ticket;
+				userName = data.user || 'No asignado';
 				ticket = { ...ticket, ...ticketData };
 			} else {
 				throw new Error('Ticket not found');
@@ -59,7 +59,7 @@
 	const handleSubmit = async () => {
 		submitting = true;
 		try {
-			const response = await fetch(`/api/ticket/${idTicket}/update`, {
+			const response = await fetch(`/api/ticket/${idTicket}`, {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(ticket)

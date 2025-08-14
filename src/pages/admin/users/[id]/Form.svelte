@@ -37,9 +37,8 @@
 
 	onMount(async () => {
 		try {
-			const res = await fetch('/api/user/getbyId', {
-				method: 'POST',
-				body: JSON.stringify({ id }),
+			const res = await fetch(`/api/user/${id}`, {
+				method: 'GET',
 				headers: { 'Content-Type': 'application/json' }
 			});
 
@@ -70,7 +69,7 @@
 				delete (payload as any).password;
 			}
 
-			const res = await fetch('/api/user/modify', {
+			const res = await fetch(`/api/user/${user.id}`, {
 				method: 'PUT',
 				body: JSON.stringify(payload),
 				headers: { 'Content-Type': 'application/json' }

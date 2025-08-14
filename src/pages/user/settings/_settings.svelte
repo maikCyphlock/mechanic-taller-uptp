@@ -20,7 +20,7 @@
 
   onMount(async () => {
     try {
-      const response = await fetch(`/api/user/getbyId?id=${userId}`);
+      const response = await fetch(`/api/user/${userId}`);
       if (response.ok) {
         const data = await response.json();
         user = { ...user, ...data };
@@ -37,7 +37,7 @@
   async function updateSettings() {
     isLoading = true;
     try {
-      const response = await fetch('/api/user/modify', {
+      const response = await fetch(`/api/user/${user.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(user)

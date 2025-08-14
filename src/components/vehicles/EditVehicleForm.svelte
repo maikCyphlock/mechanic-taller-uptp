@@ -35,18 +35,17 @@
     // Cargar datos del vehículo
     onMount(async () => {
         try {
-            const response = await fetch(`/api/vehiculo/getById`, {
-                method: 'POST',
+            const response = await fetch(`/api/vehiculo/${vehicleId}`, {
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ id: vehicleId })
+                }
             });
 
             if (!response.ok) throw new Error('Error al cargar el vehículo');
             
             const data = await response.json();
-            vehicleStore.set(data[0]);
+            vehicleStore.set(data);
         } catch (e) {
             errorMessage = e.message;
         } finally {
@@ -79,8 +78,8 @@
         
         isSubmitting = true;
         try {
-            const response = await fetch('/api/vehiculo/modify', {
-                method: 'POST',
+            const response = await fetch(`/api/vehiculo/${$vehicleStore.id}`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },

@@ -33,15 +33,15 @@
 
     onMount(async () => {
         try {
-            const response = await fetch(`/api/ticket/${idTicket}/get`);
+            const response = await fetch(`/api/ticket/${idTicket}`);
             if (response.ok) {
                 const data = await response.json();
 
                 console.log(data)
-                if (data && data.length > 0) {
-                    const ticketData = data[0].ticket;
-                    UserName = data[0].user
-                    clientName = data[0].client.name || ''
+                if (data) {
+                    const ticketData = data.ticket;
+                    UserName = data.user
+                    clientName = data.client.name || ''
                     vehicleId = ticketData.vehicleId || '';
                     short_description = ticketData.short_description || '';
                     description = ticketData.description || '';

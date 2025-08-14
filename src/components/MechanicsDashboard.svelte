@@ -27,7 +27,7 @@
     onMount(async () => {
       try {
         const apiHost = window.location.origin;
-        const res = await fetch(`${apiHost}/api/ticket/list`);
+        const res = await fetch(`${apiHost}/api/ticket`);
         if (!res.ok) throw new Error('No se pudieron obtener los tickets');
         const data = await res.json();
         // Si la API devuelve { tickets: [...] }

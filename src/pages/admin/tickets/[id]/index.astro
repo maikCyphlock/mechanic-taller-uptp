@@ -1,6 +1,6 @@
 ---
 import Layout from '@/layout/layout.astro';
-import { GET as getTicketDetails } from '@/pages/api/ticket/id';
+import { GET as getTicketDetails } from '@/pages/api/ticket/[id]';
 
 // Obtener el ID del ticket desde la URL
 const { id } = Astro.params;
@@ -16,12 +16,11 @@ if (Astro.locals.user.role !== 'admin') {
 }
 
 // Obtener los detalles del ticket usando la función del endpoint
-const response = await getTicketDetails(Astro, id);
+const response = await getTicketDetails(Astro);
 if (!response.ok) {
   return Astro.redirect('/admin/tickets');
 }
-const { tickets } = await response.json();
-const { ticket, client, vehicle, user } = tickets[0];
+const { ticket, client, vehicle, user } = await response.json();
 console.log({client})
 ---
 

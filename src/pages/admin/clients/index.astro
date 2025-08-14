@@ -1,7 +1,7 @@
 ---
 import Layout from '@/layout/layout.astro';
-import { allclients } from '@/pages/api/client/all'
-const data = await allclients(Astro)
+import { GET as getAllClients } from '@/pages/api/client'
+const data = await getAllClients({} as any)
 
 const {clients} = await data.json()
 ---
