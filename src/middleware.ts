@@ -1,87 +1,49 @@
-import { auth } from "@/lib/auth";
-import { defineMiddleware } from "astro:middleware";
-import { APIError } from "better-auth/api";
+import { withAuth } from "next-auth/middleware";
 
-import {sequence} from "astro/middleware";
+export default withAuth(
+  function middleware(req) {
+    // Add any additional middleware logic here
+  },
+  {
+    callbacks: {
+      authorized: ({ token, req }) => {
+        const { pathname } = req.nextUrl;
+        
+        // Public routes
+        if (pathname.startsWith("/auth/") || pathname === "/") {
+          return true;
+        }
+        
+        // Protected routes require authentication
+        if (!token) {
+          return false;
+        }
+        
+        // Admin routes require admin role
+        if (pathname.startsWith("/admin/")) {
+          return token.role === "admin";
+        }
+        
+        // User routes require email verification
+        if (pathname.startsWith("/user/")) {
+          return !!token.emailVerified;
+        }
+        
+        return true;
+      },
+    },
+  }
+);
 
-
-const PUBLIC_ROUTES = [
-    "/signin",
-    "/signup",
-    "/api/auth",
-    "/api/auth/sign-out",
-    "/api/auth/email",
-];
-
-export const onRequest = sequence(
-    defineMiddleware(async (context, next) => {
-        const currentPath = context.url.pathname;
-        const isPublicRoute = PUBLIC_ROUTES.some(route => currentPath.startsWith(route));
-    
-        // If it's a public route, skip auth entirely
-        if (isPublicRoute) {
-            return next();
-        }
-    
-        // Only fetch auth session for non-public routes
-        let isAuthed;
-        try {
-            isAuthed = await auth.api.getSession({
-                headers: context.request.headers,
-            });
-        } catch (err) {
-            if (err instanceof APIError) {
-                if (err.status === 401) {
-                    return new Response(JSON.stringify({ error: "Authentication failed", message: err.message }), {
-                        status: 401,
-                        headers: { "Content-Type": "application/json" },
-                    });
-                } else if (typeof err.status === "number" && err.status >= 500) {
-                    return new Response(JSON.stringify({ error: "Authentication service unavailable", message: err.message }), {
-                        status: 503,
-                        headers: { "Content-Type": "application/json" },
-                    });
-                } else {
-                    return new Response(JSON.stringify({ error: "Authentication request failed", message: err.message }), {
-                        status: typeof err.status === "number" ? err.status : 500,
-                        headers: { "Content-Type": "application/json" },
-                    });
-                }
-            } else {
-                return new Response(JSON.stringify({ error: "Internal server error" }), {
-                    status: 500,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }
-        }
-    
-        if (!isAuthed?.user?.email) {
-            const signInUrl = new URL("/signin", context.url.origin).href;
-            return context.redirect(signInUrl);
-        }
-    
-        // Check if the user is banned
-        if (isAuthed?.user?.banned) {
-            return new Response(JSON.stringify({ error: "Banned" }), {
-                status: 403,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
-    
-        // Strict admin path check
-        if (/^\/admin(\/|$)/.test(currentPath)) {
-            if (isAuthed?.user?.role !== "admin") {
-                return new Response(JSON.stringify({ error: "Unauthorized" }), {
-                    status: 401,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }
-        }
-    
-        // Store auth info in context.locals for later use
-        context.locals.user = isAuthed?.user ?? null;
-        context.locals.session = isAuthed?.session ?? null;
-    
-        return next();
-    })
-)
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+  ],
+};
