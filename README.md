@@ -1,116 +1,140 @@
-# Gestión de Taller Mecánico
+# Gestión de Taller Mecánico - Next.js + tRPC
 
-Sistema de gestión para talleres mecánicos. Permite administrar clientes, vehículos, órdenes de reparación y usuarios del sistema.
+Sistema de gestión para talleres mecánicos construido con Next.js, tRPC, Drizzle ORM y NextAuth.js.
 
 ## ✨ Características Principales
 
-*   **Gestión de Clientes:** Registrar, editar y consultar información de clientes.
-*   **Gestión de Vehículos:** Registrar, editar y consultar información de vehículos asociados a los clientes.
-*   **Gestión de Órdenes de Reparación (Tickets):**
-    *   Creación de nuevas órdenes de reparación.
-    *   Asignación de mecánicos a las órdenes.
-    *   Seguimiento del estado de las reparaciones.
-    *   Registro de servicios realizados y repuestos utilizados.
-    *   Aprobación y edición de tickets.
-*   **Gestión de Usuarios:** Diferentes roles de usuario (administrador, mecánico, cliente) con permisos específicos.
-*   **Panel de Administración:** Interfaz para administrar usuarios, clientes, vehículos y configuraciones generales del sistema.
-*   **Panel de Usuario:** Interfaz para que los clientes puedan ver el estado de sus reparaciones y su historial.
-*   **Panel de Mecánico:** Interfaz para que los mecánicos puedan ver las órdenes asignadas y actualizar su estado.
+- **Gestión de Tickets:** Sistema completo de tickets con estados y asignaciones
+- **Gestión de Usuarios:** Autenticación y autorización con roles
+- **Gestión de Clientes:** CRUD completo de clientes
+- **Gestión de Vehículos:** Registro y seguimiento de vehículos
+- **Panel de Administración:** Interface completa para administradores
+- **Type Safety:** Completamente tipado con TypeScript y tRPC
+- **Base de Datos:** PostgreSQL con Drizzle ORM
+- **UI Moderna:** Componentes con Radix UI y Tailwind CSS
 
-## 🛠️ Tecnologías Utilizadas
+## 🛠️ Stack Tecnológico
 
-*   **Frontend:**
-    *   [Astro](https://astro.build/): Framework web para construir sitios rápidos y optimizados.
-    *   [Svelte](https://svelte.dev/): Compilador para construir interfaces de usuario reactivas.
-*   **Backend:**
-    *   [Astro API Routes](https://docs.astro.build/en/guides/endpoints/): Para la creación de la API REST.
-    *   [TypeScript](https://www.typescriptlang.org/): Superset de JavaScript que añade tipado estático.
-*   **Base de Datos:**
-    *   [Drizzle ORM](https://orm.drizzle.team/): ORM para interactuar con la base de datos (PostgreSQL).
-*   **Autenticación:**
-    *   [Better Auth](https://github.com/LuciaAuth/better-auth) (utilizando `drizzleAdapter`).
+- **Frontend:** Next.js 15, React 19, TypeScript
+- **Backend:** tRPC, NextAuth.js
+- **Base de Datos:** PostgreSQL con Drizzle ORM
+- **UI:** Tailwind CSS, Radix UI, Lucide Icons
+- **Validación:** Zod
+- **Estado:** TanStack Query (React Query)
 
-## 📁 Estructura del Proyecto (Simplificada)
+## 🚀 Instalación y Configuración
 
-```text
-/
-├── public/                   # Archivos estáticos (imágenes, favicons, etc.)
-├── src/
-│   ├── components/           # Componentes Svelte reutilizables
-│   ├── db/                   # Esquema de la base de datos (Drizzle)
-│   ├── layout/               # Plantillas de diseño globales (Astro)
-│   ├── lib/                  # Librerías y utilidades (autenticación, conexión a BD)
-│   ├── pages/                # Páginas y rutas de la aplicación (Astro)
-│   │   ├── admin/            # Rutas y vistas del panel de administración
-│   │   ├── api/              # Endpoints de la API REST
-│   │   ├── user/             # Rutas y vistas del panel de usuario
-│   │   └── ...
-│   ├── middleware.ts         # Middleware para la gestión de rutas y autenticación
-├── drizzle/                  # Archivos de configuración y migraciones de Drizzle
-├── package.json              # Dependencias y scripts del proyecto
-├── astro.config.mjs          # Configuración de Astro
-├── drizzle.config.ts         # Configuración de Drizzle ORM
-└── tsconfig.json             # Configuración de TypeScript
+1. **Instalar dependencias:**
+   ```bash
+   npm install
+   ```
+
+2. **Configurar variables de entorno:**
+   ```bash
+   cp .env.example .env
+   ```
+   Edita `.env` con tus valores:
+   - `DATABASE_URL`: URL de conexión a PostgreSQL
+   - `NEXTAUTH_SECRET`: Secreto para NextAuth.js
+   - `NEXTAUTH_URL`: URL de tu aplicación
+
+3. **Configurar la base de datos:**
+   ```bash
+   npm run db:push
+   ```
+
+4. **Iniciar el servidor de desarrollo:**
+   ```bash
+   npm run dev
+   ```
+
+## 📁 Estructura del Proyecto
+
+```
+src/
+├── components/          # Componentes React reutilizables
+│   ├── ui/             # Componentes base de UI
+│   └── layout/         # Componentes de layout
+├── pages/              # Páginas de Next.js
+│   ├── api/            # API routes
+│   ├── auth/           # Páginas de autenticación
+│   ├── admin/          # Panel de administración
+│   └── user/           # Panel de usuario
+├── server/             # Código del servidor
+│   ├── api/            # Routers de tRPC
+│   ├── db/             # Configuración de base de datos
+│   └── auth.ts         # Configuración de NextAuth
+├── styles/             # Estilos globales
+└── utils/              # Utilidades y configuración de tRPC
 ```
 
-## 🚀 Instalación y Puesta en Marcha
+## 🔧 Scripts Disponibles
 
-1.  **Clonar el repositorio:**
-    ```bash
-    git clone https://URL_DEL_REPOSITORIO_AQUI # Reemplazar con la URL real
-    cd NOMBRE_DEL_DIRECTORIO_DEL_PROYECTO
-    ```
+- `npm run dev` - Servidor de desarrollo
+- `npm run build` - Build para producción
+- `npm run start` - Servidor de producción
+- `npm run db:push` - Aplicar cambios del schema a la BD
+- `npm run db:studio` - Abrir Drizzle Studio
+- `npm run db:generate` - Generar migraciones
 
-2.  **Instalar dependencias:**
-    ```bash
-    npm install
-    ```
+## 🔐 Autenticación y Autorización
 
-3.  **Configurar variables de entorno:**
-    *   Crear un archivo `.env` en la raíz del proyecto.
-    *   Añadir las variables necesarias:
-        *   `DATABASE_URL`: Cadena de conexión a la base de datos PostgreSQL.
-        *   `AUTH_SECRET`: Secreto para la librería de autenticación (Better Auth).
-    *   Consultar `env.d.ts` o el código fuente para otras variables requeridas.
+El sistema utiliza NextAuth.js con los siguientes roles:
+- **admin:** Acceso completo al sistema
+- **user:** Mecánicos con acceso a tickets asignados
+- **CLIENTE:** Clientes con acceso limitado
 
+## 📊 Base de Datos
 
-4.  **Ejecutar las migraciones de la base de datos (si aplica):**
-    ```bash
-    npm run drizzle:push # O el comando específico para el motor de BD
-    ```
+El schema incluye las siguientes entidades principales:
+- **Users:** Usuarios del sistema con roles
+- **Clients:** Clientes del taller
+- **Vehicles:** Vehículos de los clientes
+- **Tickets:** Órdenes de trabajo/reparación
+- **Roles:** Definición de roles y permisos
 
-5.  **Iniciar el servidor de desarrollo:**
-    ```bash
-    npm run dev
-    ```
-    La aplicación estará disponible en `http://localhost:4321` (o el puerto configurado).
+## 🎯 Funcionalidades Principales
 
-## Available Scripts
+### Para Administradores
+- Gestión completa de usuarios
+- Supervisión de todos los tickets
+- Gestión de clientes y vehículos
+- Aprobación de trabajos completados
 
-Desde la raíz del proyecto:
+### Para Mecánicos
+- Ver tickets asignados
+- Actualizar estado de trabajos
+- Registrar tiempo y materiales utilizados
+- Cerrar tickets completados
 
-| Comando                 | Acción                                                                 |
-| :---------------------- | :--------------------------------------------------------------------- |
-| `npm install`           | Instala las dependencias del proyecto.                                   |
-| `npm run dev`           | Inicia el servidor de desarrollo local en `localhost:4321`.              |
-| `npm run build`         | Compila la aplicación para producción en el directorio `./dist/`.        |
-| `npm run preview`       | Previsualiza la compilación de producción localmente antes de desplegar. |
-| `npm run astro ...`     | Ejecuta comandos de la CLI de Astro (ej: `astro add`, `astro check`).    |
-| `npm run astro -- --help`| Obtiene ayuda sobre la CLI de Astro.                                   |
-| `npm run drizzle:push`  | Aplica los cambios del esquema a la base de datos con Drizzle Kit.       |
-| `npm run drizzle:studio`| Abre Drizzle Studio para explorar la base de datos.                      |
+### Para Clientes
+- Ver estado de sus vehículos
+- Historial de servicios
+- Crear nuevas solicitudes
 
+## 🚀 Despliegue
+
+Para desplegar en producción:
+
+1. **Build de la aplicación:**
+   ```bash
+   npm run build
+   ```
+
+2. **Configurar variables de entorno de producción**
+
+3. **Desplegar en tu plataforma preferida** (Vercel, Railway, etc.)
 
 ## 🤝 Contribuciones
 
-Las contribuciones son bienvenidas. Si deseas mejorar este proyecto:
+Las contribuciones son bienvenidas. Para contribuir:
 
-1.  Haz un Fork del repositorio.
-2.  Crea una nueva rama (`git checkout -b feature/nueva-funcionalidad`).
-3.  Realiza tus cambios y haz commit (`git commit -am 'Añade nueva funcionalidad'`).
-4.  Empuja tus cambios a la rama (`git push origin feature/nueva-funcionalidad`).
-5.  Abre un Pull Request.
+1. Fork del repositorio
+2. Crear una rama para tu feature
+3. Commit de tus cambios
+4. Push a la rama
+5. Crear un Pull Request
 
----
+## 📝 Licencia
 
-_Este README.md fue generado y adaptado para el proyecto de Gestión de Taller Mecánico._
+Este proyecto está bajo la Licencia MIT.
