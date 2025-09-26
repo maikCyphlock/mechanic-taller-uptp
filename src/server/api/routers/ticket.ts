@@ -5,22 +5,33 @@ import { eq, and, isNull } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export const ticketRouter = createTRPCRouter({
-  getAll: adminProcedure.query(async ({ ctx }) => {
-    return await ctx.db
-      .select({
-        ticket,
-        client,
-        vehicle,
-        user: {
-          id: users.id,
-          name: users.name,
-          email: users.email,
-        },
-      })
-      .from(ticket)
-      .leftJoin(client, eq(ticket.clientId, client.id))
-      .leftJoin(vehicle, eq(ticket.vehicleId, vehicle.id))
-      .leftJoin(users, eq(ticket.assignedTo, users.id));
+  getAll: protectedProcedure
+    .input(z.object({
+      userId: z.string().optional()
+    }).optional())
+    .query(async ({ ctx, input }) => {
+      let query = ctx.db
+        .select({
+          ticket,
+          client,
+          vehicle,
+          user: {
+            id: users.id,
+            name: users.name,
+            email: users.email,
+          },
+        })
+        .from(ticket)
+        .leftJoin(client, eq(ticket.clientId, client.id))
+        .leftJoin(vehicle, eq(ticket.vehicleId, vehicle.id))
+        .leftJoin(users, eq(ticket.assignedTo, users.id));
+
+      // Si se proporciona un userId, filtrar por ese usuario
+      if (input?.userId) {
+        query = query.where(eq(ticket.assignedTo, input.userId));
+      }
+
+      return await query;
   }),
 
   getById: protectedProcedure
@@ -63,6 +74,32 @@ export const ticketRouter = createTRPCRouter({
       .leftJoin(vehicle, eq(ticket.vehicleId, vehicle.id))
       .leftJoin(users, eq(ticket.assignedTo, users.id))
       .where(eq(ticket.assignedTo, ctx.session.user.id));
+  }),
+
+  getClosedTickets: protectedProcedure
+    .query(async ({ ctx }) => {
+      return await ctx.db
+        .select({
+          ticket,
+          client,
+          vehicle,
+          user: {
+            id: users.id,
+            name: users.name,
+            email: users.email,
+          },
+        })
+        .from(ticket)
+        .leftJoin(client, eq(ticket.clientId, client.id))
+        .leftJoin(vehicle, eq(ticket.vehicleId, vehicle.id))
+        .leftJoin(users, eq(ticket.assignedTo, users.id))
+        .where(
+          and(
+            eq(ticket.status, 'CERRADO'),
+            isNull(ticket.delete_at)
+          )
+        )
+        .orderBy(ticket.createdAt);
   }),
 
   create: protectedProcedure

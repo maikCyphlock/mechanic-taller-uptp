@@ -15,25 +15,9 @@ export function Navbar() {
   const menuItems = [
     { path: "/", name: "Inicio", icon: "🏠" },
     {
-      path: "/admin",
-      name: "Admin",
-      icon: "👨‍💼",
-      adminOnly: true,
-      children: [
-        { path: "/admin/tickets", name: "Tickets", icon: "🎫" },
-        { path: "/admin/clients", name: "Clientes", icon: "👥" },
-        { path: "/admin/users", name: "Usuarios", icon: "👥" },
-        { path: "/admin/vehicles", name: "Vehículos", icon: "🚗" },
-      ],
-    },
-    {
-      path: "/user",
-      name: "Usuario",
-      icon: "👤",
-      children: [
-        { path: "/user/dashboard", name: "Mis trabajos", icon: "📊" },
-        { path: "/user/settings", name: "Mi perfil", icon: "⚙️" },
-      ],
+      path: "/dashboard",
+      name: "Dashboard",
+      icon: "📊",
     },
   ];
 
@@ -106,7 +90,7 @@ export function Navbar() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuItem asChild>
-                      <Link href="/user/settings">⚙️ Configuración</Link>
+                      <Link href="/dashboard/profile">⚙️ Configuración</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => void signOut()}>
                       🚪 Cerrar Sesión

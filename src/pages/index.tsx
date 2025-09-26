@@ -31,7 +31,7 @@ const Home: NextPage = () => {
         <div className="max-w-md mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle>Verificación Requerida</CardTitle>
+              <CardTitle>Verificación Requerida </CardTitle>
               <CardDescription>
                 Tu cuenta está en proceso de verificación. Un administrador
                 revisará tu solicitud y te notificará cuando tu cuenta haya sido
@@ -50,6 +50,7 @@ const Home: NextPage = () => {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Bienvenido, {session.user.name}
+            
           </h1>
           <p className="text-lg text-gray-600">
             Selecciona una opción para continuar
@@ -68,7 +69,7 @@ const Home: NextPage = () => {
             </CardHeader>
             <CardContent>
               <Button asChild className="w-full">
-                <Link href="/user/ticket">Crear Ticket</Link>
+                <Link href="/dashboard/tickets/create">Crear Ticket</Link>
               </Button>
             </CardContent>
           </Card>
@@ -84,7 +85,7 @@ const Home: NextPage = () => {
             </CardHeader>
             <CardContent>
               <Button asChild className="w-full" variant="outline">
-                <Link href="/user/dashboard">Ver Dashboard</Link>
+                <Link href="/dashboard/tickets">Ver Mis Tickets</Link>
               </Button>
             </CardContent>
           </Card>
@@ -104,7 +105,7 @@ const Home: NextPage = () => {
                 </CardHeader>
                 <CardContent>
                   <Button asChild className="w-full">
-                    <Link href="/admin/tickets">Ver Tickets</Link>
+                    <Link href="/dashboard/tickets">Ver Tickets</Link>
                   </Button>
                 </CardContent>
               </Card>

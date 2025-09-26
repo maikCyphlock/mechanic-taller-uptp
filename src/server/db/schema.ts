@@ -40,11 +40,12 @@ export const users = pgTable("user", {
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   emailVerified: timestamp("emailVerified", { mode: "date" }),
+  password: text('password'), // Added password field for credentials provider
   image: text('image'),
   phone: text('telefono'),
   role: roleEnum('role').notNull().default('user'),
   roleId: text('role_id').references(() => role.id, { onDelete: 'set null' }),
-  banned: boolean('banned'),
+  banned: boolean('banned').default(false),
   banReason: text('ban_reason'),
   banExpires: timestamp('ban_expires'),
   delete_at: timestamp('delete_at'),

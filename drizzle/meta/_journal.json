@@ -8,6 +8,13 @@
       "when": 1748034182117,
       "tag": "0000_early_nemesis",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1758875877667,
+      "tag": "0001_great_psynapse",
+      "breakpoints": true
     }
   ]
 }
