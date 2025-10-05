@@ -95,8 +95,13 @@ const TicketPage: NextPage = () => {
 
   // Si estamos en modo revisión, forzar el estado a CERRADO si no está definido
   useEffect(() => {
-    if (isReviewMode && ticket?.ticket?.status === 'CERRADO') {
-      reset({ ...ticket.ticket, status: 'CERRADO' });
+    if (isReviewMode && ticket?.ticket) {
+      // Transform the ticket data and ensure status is CERRADO
+      const transformedData = {
+        ...transformTicketData(ticket.ticket),
+        status: 'CERRADO' as const
+      };
+      reset(transformedData);
     }
   }, [isReviewMode, ticket, reset]);
 

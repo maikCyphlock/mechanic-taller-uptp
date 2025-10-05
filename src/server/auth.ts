@@ -68,7 +68,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = user.role;
         token.banned = user.banned;
-        token.emailVerified = user.emailVerified;
+        token.emailVerified = user.emailVerified as boolean;
         token.refreshedAt = now;
         return token;
       }
@@ -84,7 +84,7 @@ export const authOptions: NextAuthOptions = {
           if (dbUser) {
             token.id = dbUser.id;
             token.role = dbUser.role;
-            token.banned = dbUser.banned;
+            token.banned = dbUser.banned as boolean;
             token.emailVerified = !!dbUser.emailVerified;
             token.name = dbUser.name;
             token.email = dbUser.email;

@@ -4,6 +4,7 @@ import { api } from "~/utils/api";
 import { type ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { type vehicle } from "~/server/db/schema";
+import { DataTable } from "~/components/ui/data-table";
 
 const columns: ColumnDef<typeof vehicle.$inferSelect>[] = [
   {

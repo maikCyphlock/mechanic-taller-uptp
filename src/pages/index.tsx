@@ -89,6 +89,21 @@ const Home: NextPage = () => {
               </Button>
             </CardContent>
           </Card>
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                📊 todas las opciones
+              </CardTitle>
+              <CardDescription>
+                Revisa el estado de tus tickets existentes
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full" variant="outline">
+                <Link href="/dashboard">Ver Mis Tickets</Link>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
         {session.user.role === "admin" && (
