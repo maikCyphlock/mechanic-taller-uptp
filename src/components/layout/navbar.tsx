@@ -12,12 +12,25 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 export function Navbar() {
   const { data: session, status } = useSession();
 
-  const menuItems = [
+  type MenuItem = {
+    path: string;
+    name: string;
+    icon: string;
+    adminOnly?: boolean;
+    children?: {
+      path: string;
+      name: string;
+      icon: string;
+    }[];
+  };
+
+  const menuItems: MenuItem[] = [
     { path: "/", name: "Inicio", icon: "🏠" },
     {
       path: "/dashboard",
       name: "Dashboard",
       icon: "📊",
+      adminOnly: true
     },
   ];
 

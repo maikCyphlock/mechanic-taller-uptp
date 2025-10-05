@@ -6,6 +6,7 @@ import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
+import { logger } from "~/lib/logger";
 
 type CreateContextOptions = {
   session: Session | null;
@@ -24,12 +25,12 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
   // Get the session from the request
   const session = await getServerAuthSession({ req, res });
 
-  // Log the session for debugging
-  console.log('TRPC Context - Session:', {
+  // Log session information for debugging
+  logger.debug({
     hasSession: !!session,
     userId: session?.user?.id,
     role: session?.user?.role
-  });
+  }, 'TRPC Context - Session info');
 
   return createInnerTRPCContext({
     session,
@@ -59,10 +60,13 @@ export const createTRPCRouter = t.router;
 export const publicProcedure = t.procedure;
 
 const enforceUserIsAuthed = t.middleware(async ({ ctx, next }) => {
-  console.log('enforceUserIsAuthed - Session:', ctx.session);
+  const logContext = { 
+    userId: ctx.session?.user?.id,
+    userRole: ctx.session?.user?.role 
+  };
   
   if (!ctx.session?.user) {
-    console.log('enforceUserIsAuthed - No user in session, throwing UNAUTHORIZED');
+    logger.warn(logContext, 'Unauthorized access attempt - No user in session');
     throw new TRPCError({ 
       code: "UNAUTHORIZED",
       message: 'You must be logged in to access this resource'

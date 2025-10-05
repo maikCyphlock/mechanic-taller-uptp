@@ -1,16 +1,17 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, adminProcedure } from "~/server/api/trpc";
 import { ticket, client, vehicle, users } from "~/server/db/schema";
-import { eq, and, isNull } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export const ticketRouter = createTRPCRouter({
   getAll: protectedProcedure
     .input(z.object({
-      userId: z.string().optional()
+      userId: z.string().optional(),
     }).optional())
     .query(async ({ ctx, input }) => {
-      let query = ctx.db
+      // Build the base query
+      const query = ctx.db
         .select({
           ticket,
           client,
@@ -26,9 +27,9 @@ export const ticketRouter = createTRPCRouter({
         .leftJoin(vehicle, eq(ticket.vehicleId, vehicle.id))
         .leftJoin(users, eq(ticket.assignedTo, users.id));
 
-      // Si se proporciona un userId, filtrar por ese usuario
+      // Apply the where clause if userId is provided
       if (input?.userId) {
-        query = query.where(eq(ticket.assignedTo, input.userId));
+        return await query.where(eq(ticket.assignedTo, input.userId));
       }
 
       return await query;
@@ -169,11 +170,13 @@ export const ticketRouter = createTRPCRouter({
         description: z.string().optional(),
         status: z.enum(["ABIERTO", "EN_PROCESO", "CERRADO", "CANCELADO", "APROBADO"]).optional(),
         priority: z.enum(["BAJA", "MEDIA", "ALTA"]).optional(),
-        time_spent: z.number().optional(),
+        time_spent: z.union([z.string(), z.number()])
+          .transform(val => typeof val === 'number' ? val.toString() : val)
+          .optional(),
         work_notes: z.string().optional(),
         tool_used: z.string().optional(),
         payment_method: z.enum(["EFECTIVO", "TARJETA_CREDITO", "TARJETA_DEBITO", "TRANSFERENCIA_BANCARIA", "PAGO_MOVIL", "OTRO"]).optional(),
-        total_amount: z.number().optional(),
+        total_amount: z.string().optional(),
         payment_reference: z.string().optional(),
       })
     )

@@ -19,21 +19,25 @@ const updateTicketSchema = z.object({
   work_notes: z.string().optional(),
   tool_used: z.string().optional(),
   payment_method: z.enum(["EFECTIVO", "TARJETA_CREDITO", "TARJETA_DEBITO", "TRANSFERENCIA_BANCARIA", "PAGO_MOVIL", "OTRO"]).optional(),
-  total_amount: z.number().or(z.string().transform(Number)).optional(),
+  total_amount: z.union([z.string(), z.number()])
+    .transform(val => val === null || val === undefined ? undefined : val.toString())
+    .optional(),
   payment_reference: z.string().optional(),
 });
 
 type UpdateTicketInput = z.infer<typeof updateTicketSchema>;
 
-// Función para transformar los valores null a undefined
+// Función para transformar los valores null a undefined y asegurar los tipos correctos
 const transformTicketData = (ticket: any): UpdateTicketInput => ({
   ...ticket,
   description: ticket.description ?? undefined,
   work_notes: ticket.work_notes ?? undefined,
   tool_used: ticket.tool_used ?? undefined,
   payment_reference: ticket.payment_reference ?? undefined,
-  time_spent: ticket.time_spent ?? undefined,
-  total_amount: ticket.total_amount ?? undefined,
+  time_spent: ticket.time_spent ? String(ticket.time_spent) : undefined,
+  total_amount: ticket.total_amount !== undefined && ticket.total_amount !== null 
+    ? String(ticket.total_amount) 
+    : undefined,
 });
 
 const TicketPage: NextPage = () => {
@@ -53,13 +57,15 @@ const TicketPage: NextPage = () => {
     { id: id as string },
     { 
       enabled: !!id,
-      onSuccess: (data) => {
-        if (data?.ticket) {
-          reset(transformTicketData(data.ticket));
-        }
-      }
     }
   );
+
+  // Reset form when ticket data is loaded
+  useEffect(() => {
+    if (ticket?.ticket) {
+      reset(transformTicketData(ticket.ticket));
+    }
+  }, [ticket, reset]);
 
   // Configurar mutación para actualizar el ticket
   const { mutate } = api.ticket.update.useMutation({

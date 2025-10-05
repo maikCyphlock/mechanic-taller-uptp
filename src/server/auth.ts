@@ -15,6 +15,7 @@ import { db } from "~/server/db";
 import { users } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import crypto from "crypto";
+import { logger } from "~/lib/logger";
 
 // Extender los tipos de NextAuth para incluir el campo 'action' en las credenciales
 declare module "next-auth" {
@@ -113,12 +114,12 @@ export const authOptions: NextAuthOptions = {
         action: { type: "hidden" },
       },
       async authorize(credentials) {
-        console.log("\n--- Authorize Function Start ---");
-        console.log("Received credentials:", { email: credentials?.email, name: credentials?.name, action: credentials?.action });
+        const logContext = { action: 'authorize', credentials: { email: credentials?.email, action: credentials?.action } };
+        
+        logger.debug(logContext, 'Authorize function started');
 
         if (!credentials) {
-          console.log("No credentials received, returning null.");
-          console.log("--- Authorize Function End ---\n");
+          logger.warn(logContext, 'No credentials received');
           return null;
         }
         
@@ -130,26 +131,24 @@ export const authOptions: NextAuthOptions = {
             .safeParse({ email, password });
 
           if (!parsedCredentials.success) {
-            console.log("Credential validation failed:", parsedCredentials.error.errors);
-            console.log("--- Authorize Function End ---\n");
+            logger.warn({ ...logContext, error: parsedCredentials.error.errors }, 'Credential validation failed');
             return null;
           }
-          console.log("Credential validation successful.");
+          logger.debug(logContext, 'Credential validation successful');
 
           if (action === 'signup' && name) {
-            console.log("Entering SIGNUP logic...");
+            logger.debug(logContext, 'Processing user signup');
             const existingUser = await db.query.users.findFirst({ where: eq(users.email, email) });
 
             if (existingUser) {
-              console.log("User already exists.");
+              logger.warn(logContext, 'User already exists');
               throw new Error('User already exists');
             }
-            console.log("User does not exist, proceeding with creation.");
 
             const hashedPassword = await bcrypt.hash(password, 12);
             const userId = crypto.randomUUID();
             
-            console.log("Inserting new user into DB...");
+            logger.debug(logContext, 'Creating new user in database');
             const [newUser] = await db.insert(users).values({
               id: userId,
               name: name.trim(),
@@ -163,12 +162,13 @@ export const authOptions: NextAuthOptions = {
             }).returning({ id: users.id, email: users.email, name: users.name, role: users.role });
 
             if (!newUser) {
-              console.log("DB insert failed, newUser is undefined.");
+              logger.error(logContext, 'Failed to create user in database');
               throw new Error('Failed to create user in database');
             }
-            console.log("User created successfully:", newUser);
 
-            const result = {
+            logger.info({ ...logContext, userId: newUser.id }, 'User created successfully');
+
+            return {
               id: newUser.id,
               name: newUser.name,
               email: newUser.email,
@@ -176,31 +176,29 @@ export const authOptions: NextAuthOptions = {
               emailVerified: true,
               banned: false,
             };
-            console.log("Returning new user object:", result);
-            console.log("--- Authorize Function End ---\n");
-            return result;
           }
           
-          console.log("Entering SIGNIN logic...");
+          logger.debug(logContext, 'Processing user signin');
           const user = await db.query.users.findFirst({ where: eq(users.email, email) });
 
           if (!user) {
-            console.log("Signin failed: User not found.");
+            logger.warn(logContext, 'Signin failed: User not found');
             return null;
           }
           if (user.banned) {
-            console.log("Signin failed: User is banned.");
+            logger.warn({ ...logContext, userId: user.id }, 'Signin failed: User is banned');
             throw new Error('This account has been suspended');
           }
 
           const passwordsMatch = await bcrypt.compare(password, user.password || '');
           if (!passwordsMatch) {
-            console.log("Signin failed: Passwords do not match.");
+            logger.warn(logContext, 'Signin failed: Invalid password');
             return null;
           }
 
-          console.log("Signin successful for user:", user.email);
-          const result = {
+          logger.info({ ...logContext, userId: user.id }, 'User signed in successfully');
+          
+          return {
             id: user.id,
             name: user.name,
             email: user.email,
@@ -208,14 +206,10 @@ export const authOptions: NextAuthOptions = {
             emailVerified: !!user.emailVerified,
             banned: !!user.banned,
           };
-          console.log("--- Authorize Function End ---\n");
-          return result;
 
         } catch (error) {
-          console.error('Critical error in authorize function:', error);
-          console.log("--- Authorize Function End ---\n");
-          // Re-throw para que NextAuth lo maneje
-          throw error;
+          logger.error({ ...logContext, error }, 'Error in authorize function');
+          throw error; // Re-throw para que NextAuth lo maneje
         }
       },
     }),

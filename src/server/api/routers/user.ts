@@ -4,6 +4,7 @@ import { users } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { TRPCError } from "@trpc/server";
+import { logger } from "~/lib/logger";
 
 export const userRouter = createTRPCRouter({
 
@@ -18,7 +19,15 @@ export const userRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
+      const logContext = { 
+        userId: ctx.session.user.id,
+        targetUserId: input.id,
+        action: 'getUserById' 
+      };
+
       try {
+        logger.debug(logContext, 'Fetching user by ID');
+        
         const result = await ctx.db
           .select()
           .from(users)
@@ -28,6 +37,7 @@ export const userRouter = createTRPCRouter({
         const user = result[0];
         
         if (!user) {
+          logger.warn(logContext, 'User not found');
           throw new TRPCError({
             code: 'NOT_FOUND',
             message: 'User not found',
@@ -36,15 +46,17 @@ export const userRouter = createTRPCRouter({
 
         // Don't return sensitive data
         const { password: _, ...userWithoutPassword } = user;
+        logger.debug({ ...logContext, user: userWithoutPassword }, 'Successfully fetched user');
+        
         return userWithoutPassword;
         
       } catch (error) {
-        console.error('Error in user.getById:', error);
-        
         if (error instanceof TRPCError) {
+          logger.error({ ...logContext, error: error.message }, 'Failed to fetch user');
           throw error;
         }
         
+        logger.error({ ...logContext, error }, 'Unexpected error in getById');
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to fetch user',
@@ -63,24 +75,44 @@ export const userRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const updateData: Record<string, unknown> = {
-        updatedAt: new Date(),
+      const logContext = { 
+        userId: ctx.session.user.id,
+        action: 'updateProfile',
+        updates: Object.keys(input).filter(key => key !== 'password')
       };
 
-      if (input.name) updateData.name = input.name;
-      if (input.phone) updateData.phone = input.phone;
-      if (input.cedula) updateData.cedula = input.cedula;
-      
-      if (input.password) {
-        updateData.password = await bcrypt.hash(input.password, 12);
+      try {
+        logger.debug(logContext, 'Updating user profile');
+        
+        const updateData: Record<string, unknown> = {
+          updatedAt: new Date(),
+        };
+
+        if (input.name) updateData.name = input.name;
+        if (input.phone) updateData.phone = input.phone;
+        if (input.cedula) updateData.cedula = input.cedula;
+        
+        if (input.password) {
+          updateData.password = await bcrypt.hash(input.password, 12);
+          logContext.updates.push('password');
+        }
+
+        await ctx.db
+          .update(users)
+          .set(updateData)
+          .where(eq(users.id, ctx.session.user.id));
+
+        logger.info(logContext, 'User profile updated successfully');
+        return { success: true };
+        
+      } catch (error) {
+        logger.error({ ...logContext, error }, 'Failed to update user profile');
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update profile',
+          cause: error,
+        });
       }
-
-      await ctx.db
-        .update(users)
-        .set(updateData)
-        .where(eq(users.id, ctx.session.user.id));
-
-      return { success: true };
     }),
 
   updateUser: adminProcedure
@@ -102,26 +134,48 @@ export const userRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { id, emailVerified, password, ...updateData } = input;
       
-      const updatePayload: Record<string, unknown> = {
-        ...updateData,
-        updatedAt: new Date(),
+      const logContext = { 
+        adminId: ctx.session.user.id,
+        targetUserId: id,
+        action: 'updateUser',
+        updates: Object.keys(updateData).filter(key => key !== 'password')
       };
 
-      // Handle emailVerified specially since it can be boolean or Date
-      if (emailVerified !== undefined) {
-        updatePayload.emailVerified = emailVerified === true ? new Date() : null;
-      }
-      
-      // Handle password hashing if provided
-      if (password) {
-        updatePayload.password = await bcrypt.hash(password, 12);
-      }
-      
-      // Perform the update
-      await ctx.db.update(users)
-        .set(updatePayload)
-        .where(eq(users.id, id));
+      try {
+        logger.debug(logContext, 'Admin updating user');
+        
+        const updatePayload: Record<string, unknown> = {
+          ...updateData,
+          updatedAt: new Date(),
+        };
 
-      return { success: true };
+        // Handle emailVerified specially since it can be boolean or Date
+        if (emailVerified !== undefined) {
+          updatePayload.emailVerified = emailVerified === true ? new Date() : null;
+          logContext.updates.push('emailVerified');
+        }
+        
+        // Handle password hashing if provided
+        if (password) {
+          updatePayload.password = await bcrypt.hash(password, 12);
+          logContext.updates.push('password');
+        }
+        
+        // Perform the update
+        await ctx.db.update(users)
+          .set(updatePayload)
+          .where(eq(users.id, id));
+
+        logger.info(logContext, 'User updated successfully by admin');
+        return { success: true };
+        
+      } catch (error) {
+        logger.error({ ...logContext, error }, 'Failed to update user as admin');
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update user',
+          cause: error,
+        });
+      }
     }),
 });

@@ -24,4 +24,4 @@ pnpm-debug.log*
 .idea/
 *.rar
 .cursorrules
-.next
+.next/

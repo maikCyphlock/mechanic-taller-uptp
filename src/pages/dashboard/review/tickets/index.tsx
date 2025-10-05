@@ -59,7 +59,7 @@ const ReviewTicketsPage: NextPage = () => {
 
   // Verificar permisos
   const userRole = session?.user?.role;
-  const isAuthorized = ['ADMIN', 'SUPERADMIN', 'SUPERVISOR'].includes(userRole);
+  const isAuthorized = ['ADMIN', 'SUPERADMIN', 'SUPERVISOR'].includes(userRole ?? '');
 
   const { data: tickets, isLoading } = api.ticket.getClosedTickets.useQuery(
     undefined,

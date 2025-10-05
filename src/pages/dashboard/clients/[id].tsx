@@ -31,7 +31,15 @@ const ClientPage: NextPage = () => {
 
   const { register, handleSubmit } = useForm<UpdateClientInput>({
     resolver: zodResolver(updateClientSchema),
-    defaultValues: client,
+    defaultValues: client ? {
+      name: client.name ?? undefined,
+      email: client.email ?? undefined,
+      phone: client.phone ?? undefined,
+      address: client.address ?? undefined,
+      city: client.city ?? undefined,
+      state: client.state ?? undefined,
+      cedula: client.cedula ?? undefined,
+    } : undefined,
   });
 
   const onSubmit = (data: UpdateClientInput) => {

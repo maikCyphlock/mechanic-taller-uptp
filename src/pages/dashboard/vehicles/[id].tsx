@@ -30,7 +30,14 @@ const VehiclePage: NextPage = () => {
 
   const { register, handleSubmit } = useForm<UpdateVehicleInput>({
     resolver: zodResolver(updateVehicleSchema),
-    defaultValues: vehicle,
+    defaultValues: vehicle ? {
+      plate: vehicle.plate ?? undefined,
+      make: vehicle.make ?? undefined,
+      model: vehicle.model ?? undefined,
+      year: vehicle.year ?? undefined,
+      color: vehicle.color ?? undefined,
+      type: vehicle.type ?? undefined,
+    } : undefined,
   });
 
   const onSubmit = (data: UpdateVehicleInput) => {
