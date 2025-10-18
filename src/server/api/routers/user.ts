@@ -30,23 +30,27 @@ export const userRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const updateData: any = {};
+      const updateData: Partial<typeof users.$inferInsert> = {
+        updatedAt: new Date(),
+      };
 
-      if (input.name) updateData.name = input.name;
-      if (input.phone) updateData.phone = input.phone;
-      if (input.cedula) updateData.cedula = input.cedula;
-      
-      if (input.password) {
+      if (typeof input.name === "string") {
+        updateData.name = input.name;
+      }
+
+      if (typeof input.phone === "string") {
+        updateData.phone = input.phone;
+      }
+
+      if (typeof input.cedula === "string") {
+        updateData.cedula = input.cedula;
+      }
+
+      if (typeof input.password === "string") {
         updateData.password = await bcrypt.hash(input.password, 12);
       }
 
-      await ctx.db
-        .update(users)
-        .set({
-          ...updateData,
-          updatedAt: new Date(),
-        })
-        .where(eq(users.id, ctx.session.user.id));
+      await ctx.db.update(users).set(updateData).where(eq(users.id, ctx.session.user.id));
 
       return { success: true };
     }),
@@ -68,19 +72,22 @@ export const userRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, password, ...updateData } = input;
+      const { id, password, emailVerified, ...rest } = input;
 
-      if (password) {
+      const updateData: Partial<typeof users.$inferInsert> = {
+        ...rest,
+        updatedAt: new Date(),
+      };
+
+      if (typeof emailVerified === "boolean") {
+        updateData.emailVerified = emailVerified ? new Date() : null;
+      }
+
+      if (typeof password === "string") {
         updateData.password = await bcrypt.hash(password, 12);
       }
 
-      await ctx.db
-        .update(users)
-        .set({
-          ...updateData,
-          updatedAt: new Date(),
-        })
-        .where(eq(users.id, id));
+      await ctx.db.update(users).set(updateData).where(eq(users.id, id));
 
       return { success: true };
     }),

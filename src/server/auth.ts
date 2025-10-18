@@ -72,13 +72,22 @@ export const authOptions: NextAuthOptions = {
 
         const user = await db.query.users.findFirst({
           where: eq(users.email, email),
+          columns: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            emailVerified: true,
+            banned: true,
+            password: true,
+          },
         });
 
         if (!user) return null;
 
         // For demo purposes, we'll assume password is stored as plain text
         // In production, you should hash passwords
-        const passwordsMatch = await bcrypt.compare(password, user.password || '');
+        const passwordsMatch = user.password ? await bcrypt.compare(password, user.password) : false;
 
         if (passwordsMatch) {
           return {

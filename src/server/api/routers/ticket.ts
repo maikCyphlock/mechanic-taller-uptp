@@ -141,14 +141,24 @@ export const ticketRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, ...updateData } = input;
+      const { id, total_amount, time_spent, ...rawUpdateData } = input;
+
+      const updateData: Partial<typeof ticket.$inferInsert> = {
+        ...rawUpdateData,
+        updatedAt: new Date(),
+      };
+
+      if (typeof total_amount === "number") {
+        updateData.total_amount = total_amount.toString();
+      }
+
+      if (typeof time_spent === "number") {
+        updateData.time_spent = time_spent.toString();
+      }
 
       await ctx.db
         .update(ticket)
-        .set({
-          ...updateData,
-          updatedAt: new Date(),
-        })
+        .set(updateData)
         .where(eq(ticket.id, id));
 
       return { success: true };
