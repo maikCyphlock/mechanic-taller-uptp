@@ -15,6 +15,13 @@
       "when": 1758875877667,
       "tag": "0001_great_psynapse",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1760802073821,
+      "tag": "0002_broad_serpent_society",
+      "breakpoints": true
     }
   ]
 }

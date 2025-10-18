@@ -39,7 +39,7 @@ export const users = pgTable("user", {
   cedula: text('cedula').unique(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
-  emailVerified: timestamp("emailVerified", { mode: "date" }),
+  emailVerified: timestamp("email_verified", { mode: "date" }),
   password: text('password'), // Added password field for credentials provider
   image: text('image'),
   phone: text('telefono'),
