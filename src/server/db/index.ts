@@ -5,6 +5,7 @@ import * as schema from "./schema";
 
 const pool = new Pool({
   connectionString: env.DATABASE_URL,
+  ...(env.TURSO_TOKEN ? { password: env.TURSO_TOKEN } : {}),
 });
 
 export const db = drizzle(pool, { schema });
