@@ -1,19 +1,12 @@
 {
   "version": "7",
-  "dialect": "postgresql",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1748034182117,
-      "tag": "0000_early_nemesis",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1760825904255,
-      "tag": "0001_uneven_omega_sentinel",
+      "version": "6",
+      "when": 1765122583083,
+      "tag": "0000_striped_major_mapleleaf",
       "breakpoints": true
     }
   ]

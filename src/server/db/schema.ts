@@ -1,20 +1,16 @@
-import { pgTable, text, timestamp, boolean, integer, decimal, pgEnum } from "drizzle-orm/pg-core";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
-export const statusTicketEnum = pgEnum("Status_Ticket", ["ABIERTO", "EN_PROCESO", "CERRADO", "CANCELADO", "APROBADO"]);
-export const prioridadTicketEnum = pgEnum("Prioridad_Ticket", ["BAJA", "MEDIA", "ALTA"]);
-export const roleEnum = pgEnum("Role", ["user", "admin", "CLIENTE", "GERENTE", "OTRO", "SUPERADMIN"]);
-export const tipoVehiculoEnum = pgEnum("Tipo_Vehiculo", ["automovil", "camioneta", "camion", "motocicleta", "autobus", "otro"]);
-export const paymentStatusEnum = pgEnum("Payment_Status", ["PENDIENTE", "COMPLETADO", "FALLIDO"]);
-export const paymentMethodEnum = pgEnum("Payment_Method", ["EFECTIVO", "TARJETA_CREDITO", "TARJETA_DEBITO", "TRANSFERENCIA_BANCARIA", "PAGO_MOVIL", "OTRO"]);
-
-const TIMESTAMPS = {
-  createdAt: timestamp('created_at').$defaultFn(() => new Date()).notNull(),
-  updatedAt: timestamp('updated_at').$defaultFn(() => new Date()).notNull().$onUpdateFn(() => new Date())
-};
+// Note: SQLite doesn't support enums, so we use text with type constraints
+export const statusTicketValues = ["ABIERTO", "EN_PROCESO", "CERRADO", "CANCELADO", "APROBADO"] as const;
+export const prioridadTicketValues = ["BAJA", "MEDIA", "ALTA"] as const;
+export const roleValues = ["user", "admin", "CLIENTE", "GERENTE", "OTRO", "SUPERADMIN"] as const;
+export const tipoVehiculoValues = ["automovil", "camioneta", "camion", "motocicleta", "autobus", "otro"] as const;
+export const paymentStatusValues = ["PENDIENTE", "COMPLETADO", "FALLIDO"] as const;
+export const paymentMethodValues = ["EFECTIVO", "TARJETA_CREDITO", "TARJETA_DEBITO", "TRANSFERENCIA_BANCARIA", "PAGO_MOVIL", "OTRO"] as const;
 
 // NextAuth tables
-export const accounts = pgTable("account", {
+export const accounts = sqliteTable("account", {
   userId: text("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
   type: text("type").notNull(),
   provider: text("provider").notNull(),
@@ -28,37 +24,38 @@ export const accounts = pgTable("account", {
   session_state: text("session_state"),
 });
 
-export const sessions = pgTable("session", {
+export const sessions = sqliteTable("session", {
   sessionToken: text("sessionToken").primaryKey(),
   userId: text("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  expires: timestamp("expires", { mode: "date" }).notNull(),
+  expires: integer("expires", { mode: "timestamp" }).notNull(),
 });
 
-export const users = pgTable("user", {
+export const users = sqliteTable("user", {
   id: text('id').primaryKey(),
   cedula: text('cedula').unique(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   password: text('password'),
-  emailVerified: timestamp("email_verified", { mode: "date" }),
+  emailVerified: integer("email_verified", { mode: "timestamp" }),
   image: text('image'),
   phone: text('telefono'),
-  role: roleEnum('role').notNull().default('user'),
+  role: text('role', { enum: roleValues }).notNull().default('user'),
   roleId: text('role_id').references(() => role.id, { onDelete: 'set null' }),
-  banned: boolean('banned'),
+  banned: integer('banned', { mode: 'boolean' }),
   banReason: text('ban_reason'),
-  banExpires: timestamp('ban_expires'),
-  delete_at: timestamp('delete_at'),
-  ...TIMESTAMPS
+  banExpires: integer('ban_expires', { mode: 'timestamp' }),
+  delete_at: integer('delete_at', { mode: 'timestamp' }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
 });
 
-export const verificationTokens = pgTable("verificationToken", {
+export const verificationTokens = sqliteTable("verificationToken", {
   identifier: text("identifier").notNull(),
   token: text("token").notNull(),
-  expires: timestamp("expires", { mode: "date" }).notNull(),
+  expires: integer("expires", { mode: "timestamp" }).notNull(),
 });
 
-export const client = pgTable("client", {
+export const client = sqliteTable("client", {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   email: text('email').unique(),
@@ -67,67 +64,72 @@ export const client = pgTable("client", {
   city: text('city'),
   state: text('state'),
   cedula: text('cedula').unique(),
-  delete_at: timestamp('delete_at'),
-  ...TIMESTAMPS
+  delete_at: integer('delete_at', { mode: 'timestamp' }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
 });
 
-export const role = pgTable("role", {
+export const role = sqliteTable("role", {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
-  ...TIMESTAMPS
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
 });
 
-export const vehicleIssue = pgTable("vehicle_issue", {
+export const vehicleIssue = sqliteTable("vehicle_issue", {
   id: text('id').primaryKey(),
   description: text('description'),
   severity: integer('severity').notNull(),
   status: text('status').notNull(),
   issueDescription: text('issue_descrption'),
   issueType: text('issueType'),
-  delete_at: timestamp('delete_at'),
+  delete_at: integer('delete_at', { mode: 'timestamp' }),
   vehicleId: text('vehicle_id').notNull().references(() => vehicle.id, { onDelete: 'set null' }),
-  ...TIMESTAMPS
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
 });
 
-export const vehicle = pgTable("vehicle", {
+export const vehicle = sqliteTable("vehicle", {
   id: text('id').primaryKey(),
   plate: text('plate').unique(),
   make: text('make'),
   model: text('model'),
   year: integer('year'),
   color: text('color'),
-  type: tipoVehiculoEnum('type').notNull().default('otro'),
-  delete_at: timestamp('delete_at'),
+  type: text('type', { enum: tipoVehiculoValues }).notNull().default('otro'),
+  delete_at: integer('delete_at', { mode: 'timestamp' }),
   ownerId: text('owner_id').references(() => client.id, { onDelete: 'cascade' }),
-  ...TIMESTAMPS
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
 });
 
-export const ticket = pgTable("ticket", {
+export const ticket = sqliteTable("ticket", {
   id: text('id').primaryKey(),
   vehicleId: text('vehicle_id').notNull().references(() => vehicle.id, { onDelete: 'cascade' }),
   short_description: text('short_description'),
   description: text('description'),
-  closedAt: timestamp('closed_at'),
-  status: statusTicketEnum('status').notNull().default('ABIERTO'),
-  priority: prioridadTicketEnum('priority').notNull().default('MEDIA'),
+  closedAt: integer('closed_at', { mode: 'timestamp' }),
+  status: text('status', { enum: statusTicketValues }).notNull().default('ABIERTO'),
+  priority: text('priority', { enum: prioridadTicketValues }).notNull().default('MEDIA'),
   assignedTo: text('assigned_to').references(() => users.id, { onDelete: 'set null' }),
-  estimatedCost: decimal('estimated_cost'),
+  estimatedCost: text('estimated_cost'), // Using text for decimal values in SQLite
   clientId: text('client_id').references(() => client.id, { onDelete: 'set null' }),
   approved_by: text('approved_by').references(() => users.id, { onDelete: 'set null' }),
-  approved_at: timestamp('approved_at'),
-  payment_method: paymentMethodEnum('payment_method'),
+  approved_at: integer('approved_at', { mode: 'timestamp' }),
+  payment_method: text('payment_method', { enum: paymentMethodValues }),
   payment_status: text('payment_status'),
   payment_reference: text('payment_reference'),
   payment_currency: text('payment_currency'),
-  payment_amount: decimal('payment_amount'),
-  payment_date: timestamp('payment_date'),
-  total_amount: decimal('total_amount'),
-  time_spent: decimal('time_spent'),
+  payment_amount: text('payment_amount'), // Using text for decimal values in SQLite
+  payment_date: integer('payment_date', { mode: 'timestamp' }),
+  total_amount: text('total_amount'), // Using text for decimal values in SQLite
+  time_spent: text('time_spent'), // Using text for decimal values in SQLite
   work_notes: text('work_notes'),
   tool_used: text('tool_used'),
-  delete_at: timestamp('delete_at'),
-  ...TIMESTAMPS
+  delete_at: integer('delete_at', { mode: 'timestamp' }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
 });
 
 // Relations

@@ -1,1424 +1,98 @@
 {
-  "id": "ff89f17e-b7da-4c86-9283-44d965a2b4cc",
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "ed368978-6c80-4b8c-a5c4-f929de5be531",
   "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "7",
-  "dialect": "postgresql",
   "tables": {
-    "public.Cargo": {
-      "name": "Cargo",
-      "schema": "",
-      "columns": {
-        "Cod_Cargo": {
-          "name": "Cod_Cargo",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Desc_Cargo": {
-          "name": "Desc_Cargo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Cliente": {
-      "name": "Cliente",
-      "schema": "",
-      "columns": {
-        "Id_Cliente_Sistema": {
-          "name": "Id_Cliente_Sistema",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Tipo_Cliente": {
-          "name": "Tipo_Cliente",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Cedula_Persona": {
-          "name": "Cedula_Persona",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Nombre_Apellido_Persona": {
-          "name": "Nombre_Apellido_Persona",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Rif_Empresa": {
-          "name": "Rif_Empresa",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Desc_Empresa": {
-          "name": "Desc_Empresa",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Nombre_Para_Mostrar": {
-          "name": "Nombre_Para_Mostrar",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Correo_Principal": {
-          "name": "Correo_Principal",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Telefono_Principal": {
-          "name": "Telefono_Principal",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Direccion_Principal": {
-          "name": "Direccion_Principal",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "Cliente_Cedula_Persona_unique": {
-          "name": "Cliente_Cedula_Persona_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "Cedula_Persona"
-          ]
-        },
-        "Cliente_Rif_Empresa_unique": {
-          "name": "Cliente_Rif_Empresa_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "Rif_Empresa"
-          ]
-        },
-        "Cliente_Correo_Principal_unique": {
-          "name": "Cliente_Correo_Principal_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "Correo_Principal"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Condicion_Pago": {
-      "name": "Condicion_Pago",
-      "schema": "",
-      "columns": {
-        "Cod_Condicion_Pago": {
-          "name": "Cod_Condicion_Pago",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Desc_Pago": {
-          "name": "Desc_Pago",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Dias_Credito": {
-          "name": "Dias_Credito",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Cotizacion": {
-      "name": "Cotizacion",
-      "schema": "",
-      "columns": {
-        "Cod_Cotizacion": {
-          "name": "Cod_Cotizacion",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Fecha_Cotizacion": {
-          "name": "Fecha_Cotizacion",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Id_Cliente_Sistema": {
-          "name": "Id_Cliente_Sistema",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Cod_Condicion_Pago": {
-          "name": "Cod_Condicion_Pago",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Validez_Oferta_Dias": {
-          "name": "Validez_Oferta_Dias",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 15
-        },
-        "Status_Cotizacion": {
-          "name": "Status_Cotizacion",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'BORRADOR'"
-        },
-        "Monto_Total_Cotizacion": {
-          "name": "Monto_Total_Cotizacion",
-          "type": "numeric(12, 2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Id_Servicio_Asociado": {
-          "name": "Id_Servicio_Asociado",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "Cotizacion_Id_Cliente_Sistema_Cliente_Id_Cliente_Sistema_fk": {
-          "name": "Cotizacion_Id_Cliente_Sistema_Cliente_Id_Cliente_Sistema_fk",
-          "tableFrom": "Cotizacion",
-          "tableTo": "Cliente",
-          "columnsFrom": [
-            "Id_Cliente_Sistema"
-          ],
-          "columnsTo": [
-            "Id_Cliente_Sistema"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "Cotizacion_Cod_Condicion_Pago_Condicion_Pago_Cod_Condicion_Pago_fk": {
-          "name": "Cotizacion_Cod_Condicion_Pago_Condicion_Pago_Cod_Condicion_Pago_fk",
-          "tableFrom": "Cotizacion",
-          "tableTo": "Condicion_Pago",
-          "columnsFrom": [
-            "Cod_Condicion_Pago"
-          ],
-          "columnsTo": [
-            "Cod_Condicion_Pago"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "Cotizacion_Id_Servicio_Asociado_Ticket_Id_Servicio_fk": {
-          "name": "Cotizacion_Id_Servicio_Asociado_Ticket_Id_Servicio_fk",
-          "tableFrom": "Cotizacion",
-          "tableTo": "Ticket",
-          "columnsFrom": [
-            "Id_Servicio_Asociado"
-          ],
-          "columnsTo": [
-            "Id_Servicio"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Detalle_Cotizacion": {
-      "name": "Detalle_Cotizacion",
-      "schema": "",
-      "columns": {
-        "Cod_Detalle_Cotizacion": {
-          "name": "Cod_Detalle_Cotizacion",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Cod_Cotizacion": {
-          "name": "Cod_Cotizacion",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Tipo_Item_DC": {
-          "name": "Tipo_Item_DC",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Cod_Tipo_Servicio_DC": {
-          "name": "Cod_Tipo_Servicio_DC",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Id_Repuesto_DC": {
-          "name": "Id_Repuesto_DC",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Desc_DC": {
-          "name": "Desc_DC",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Cantidad_DC": {
-          "name": "Cantidad_DC",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 1
-        },
-        "Precio_DC": {
-          "name": "Precio_DC",
-          "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Subtotal_DC": {
-          "name": "Subtotal_DC",
-          "type": "numeric(12, 2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "Detalle_Cotizacion_Cod_Cotizacion_Cotizacion_Cod_Cotizacion_fk": {
-          "name": "Detalle_Cotizacion_Cod_Cotizacion_Cotizacion_Cod_Cotizacion_fk",
-          "tableFrom": "Detalle_Cotizacion",
-          "tableTo": "Cotizacion",
-          "columnsFrom": [
-            "Cod_Cotizacion"
-          ],
-          "columnsTo": [
-            "Cod_Cotizacion"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "Detalle_Cotizacion_Cod_Tipo_Servicio_DC_Tipo_Servicio_Cod_Tipo_Servicio_fk": {
-          "name": "Detalle_Cotizacion_Cod_Tipo_Servicio_DC_Tipo_Servicio_Cod_Tipo_Servicio_fk",
-          "tableFrom": "Detalle_Cotizacion",
-          "tableTo": "Tipo_Servicio",
-          "columnsFrom": [
-            "Cod_Tipo_Servicio_DC"
-          ],
-          "columnsTo": [
-            "Cod_Tipo_Servicio"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "Detalle_Cotizacion_Id_Repuesto_DC_Repuesto_Id_Repuesto_fk": {
-          "name": "Detalle_Cotizacion_Id_Repuesto_DC_Repuesto_Id_Repuesto_fk",
-          "tableFrom": "Detalle_Cotizacion",
-          "tableTo": "Repuesto",
-          "columnsFrom": [
-            "Id_Repuesto_DC"
-          ],
-          "columnsTo": [
-            "Id_Repuesto"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Detalle_Ticket": {
-      "name": "Detalle_Ticket",
-      "schema": "",
-      "columns": {
-        "Id_Detalle": {
-          "name": "Id_Detalle",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Id_Servicio": {
-          "name": "Id_Servicio",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Tipo_Item": {
-          "name": "Tipo_Item",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Cod_Tipo_Servicio": {
-          "name": "Cod_Tipo_Servicio",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Id_Repuesto": {
-          "name": "Id_Repuesto",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Descripcion_Manual_Item": {
-          "name": "Descripcion_Manual_Item",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Cantidad": {
-          "name": "Cantidad",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 1
-        },
-        "Precio_Unitario_Item": {
-          "name": "Precio_Unitario_Item",
-          "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Subtotal_Item": {
-          "name": "Subtotal_Item",
-          "type": "numeric(12, 2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Fecha_Recibido_Item": {
-          "name": "Fecha_Recibido_Item",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Fecha_Entrega_Item": {
-          "name": "Fecha_Entrega_Item",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Garantia_Servicio_Item": {
-          "name": "Garantia_Servicio_Item",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "Detalle_Ticket_Id_Servicio_Ticket_Id_Servicio_fk": {
-          "name": "Detalle_Ticket_Id_Servicio_Ticket_Id_Servicio_fk",
-          "tableFrom": "Detalle_Ticket",
-          "tableTo": "Ticket",
-          "columnsFrom": [
-            "Id_Servicio"
-          ],
-          "columnsTo": [
-            "Id_Servicio"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "Detalle_Ticket_Cod_Tipo_Servicio_Tipo_Servicio_Cod_Tipo_Servicio_fk": {
-          "name": "Detalle_Ticket_Cod_Tipo_Servicio_Tipo_Servicio_Cod_Tipo_Servicio_fk",
-          "tableFrom": "Detalle_Ticket",
-          "tableTo": "Tipo_Servicio",
-          "columnsFrom": [
-            "Cod_Tipo_Servicio"
-          ],
-          "columnsTo": [
-            "Cod_Tipo_Servicio"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "Detalle_Ticket_Id_Repuesto_Repuesto_Id_Repuesto_fk": {
-          "name": "Detalle_Ticket_Id_Repuesto_Repuesto_Id_Repuesto_fk",
-          "tableFrom": "Detalle_Ticket",
-          "tableTo": "Repuesto",
-          "columnsFrom": [
-            "Id_Repuesto"
-          ],
-          "columnsTo": [
-            "Id_Repuesto"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Marca": {
-      "name": "Marca",
-      "schema": "",
-      "columns": {
-        "Cod_Marca": {
-          "name": "Cod_Marca",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Desc_Marca": {
-          "name": "Desc_Marca",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Modelo": {
-      "name": "Modelo",
-      "schema": "",
-      "columns": {
-        "Cod_Modelo": {
-          "name": "Cod_Modelo",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Desc_Modelo": {
-          "name": "Desc_Modelo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Cod_Marca": {
-          "name": "Cod_Marca",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "Modelo_Cod_Marca_Marca_Cod_Marca_fk": {
-          "name": "Modelo_Cod_Marca_Marca_Cod_Marca_fk",
-          "tableFrom": "Modelo",
-          "tableTo": "Marca",
-          "columnsFrom": [
-            "Cod_Marca"
-          ],
-          "columnsTo": [
-            "Cod_Marca"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Nota_Entrega": {
-      "name": "Nota_Entrega",
-      "schema": "",
-      "columns": {
-        "Cod_Nota": {
-          "name": "Cod_Nota",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Fecha_Nota": {
-          "name": "Fecha_Nota",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Id_Cliente_Sistema": {
-          "name": "Id_Cliente_Sistema",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Id_Servicio_Asociado": {
-          "name": "Id_Servicio_Asociado",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Observaciones_Entrega": {
-          "name": "Observaciones_Entrega",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Resumen_Items_Entregados": {
-          "name": "Resumen_Items_Entregados",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Recibido_Conforme_Por": {
-          "name": "Recibido_Conforme_Por",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "Nota_Entrega_Id_Cliente_Sistema_Cliente_Id_Cliente_Sistema_fk": {
-          "name": "Nota_Entrega_Id_Cliente_Sistema_Cliente_Id_Cliente_Sistema_fk",
-          "tableFrom": "Nota_Entrega",
-          "tableTo": "Cliente",
-          "columnsFrom": [
-            "Id_Cliente_Sistema"
-          ],
-          "columnsTo": [
-            "Id_Cliente_Sistema"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "Nota_Entrega_Id_Servicio_Asociado_Ticket_Id_Servicio_fk": {
-          "name": "Nota_Entrega_Id_Servicio_Asociado_Ticket_Id_Servicio_fk",
-          "tableFrom": "Nota_Entrega",
-          "tableTo": "Ticket",
-          "columnsFrom": [
-            "Id_Servicio_Asociado"
-          ],
-          "columnsTo": [
-            "Id_Servicio"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Repuesto": {
-      "name": "Repuesto",
-      "schema": "",
-      "columns": {
-        "Id_Repuesto": {
-          "name": "Id_Repuesto",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Codigo_Interno_Repuesto": {
-          "name": "Codigo_Interno_Repuesto",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Nombre_Repuesto": {
-          "name": "Nombre_Repuesto",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Descripcion_Repuesto": {
-          "name": "Descripcion_Repuesto",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Cod_Marca_Repuesto": {
-          "name": "Cod_Marca_Repuesto",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Stock_Actual": {
-          "name": "Stock_Actual",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "Precio_Compra": {
-          "name": "Precio_Compra",
-          "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Precio_Venta_Base": {
-          "name": "Precio_Venta_Base",
-          "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "Repuesto_Cod_Marca_Repuesto_Marca_Cod_Marca_fk": {
-          "name": "Repuesto_Cod_Marca_Repuesto_Marca_Cod_Marca_fk",
-          "tableFrom": "Repuesto",
-          "tableTo": "Marca",
-          "columnsFrom": [
-            "Cod_Marca_Repuesto"
-          ],
-          "columnsTo": [
-            "Cod_Marca"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "Repuesto_Codigo_Interno_Repuesto_unique": {
-          "name": "Repuesto_Codigo_Interno_Repuesto_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "Codigo_Interno_Repuesto"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Ticket": {
-      "name": "Ticket",
-      "schema": "",
-      "columns": {
-        "Id_Servicio": {
-          "name": "Id_Servicio",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Titulo": {
-          "name": "Titulo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Descripcion_Adicional": {
-          "name": "Descripcion_Adicional",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Status_Ticket": {
-          "name": "Status_Ticket",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'ABIERTO'"
-        },
-        "Prioridad_Ticket": {
-          "name": "Prioridad_Ticket",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'BAJA'"
-        },
-        "Fecha_Servicio": {
-          "name": "Fecha_Servicio",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Id_Cliente_Sistema": {
-          "name": "Id_Cliente_Sistema",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Serial_Motor_VIN_Vehiculo": {
-          "name": "Serial_Motor_VIN_Vehiculo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Cedula_Usuario_Asignado": {
-          "name": "Cedula_Usuario_Asignado",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "Ticket_Id_Cliente_Sistema_Cliente_Id_Cliente_Sistema_fk": {
-          "name": "Ticket_Id_Cliente_Sistema_Cliente_Id_Cliente_Sistema_fk",
-          "tableFrom": "Ticket",
-          "tableTo": "Cliente",
-          "columnsFrom": [
-            "Id_Cliente_Sistema"
-          ],
-          "columnsTo": [
-            "Id_Cliente_Sistema"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "Ticket_Serial_Motor_VIN_Vehiculo_Vehiculo_Serial_Motor_VIN_fk": {
-          "name": "Ticket_Serial_Motor_VIN_Vehiculo_Vehiculo_Serial_Motor_VIN_fk",
-          "tableFrom": "Ticket",
-          "tableTo": "Vehiculo",
-          "columnsFrom": [
-            "Serial_Motor_VIN_Vehiculo"
-          ],
-          "columnsTo": [
-            "Serial_Motor_VIN"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "Ticket_Cedula_Usuario_Asignado_Usuario_Cedula_fk": {
-          "name": "Ticket_Cedula_Usuario_Asignado_Usuario_Cedula_fk",
-          "tableFrom": "Ticket",
-          "tableTo": "Usuario",
-          "columnsFrom": [
-            "Cedula_Usuario_Asignado"
-          ],
-          "columnsTo": [
-            "Cedula"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Tipo_Servicio": {
-      "name": "Tipo_Servicio",
-      "schema": "",
-      "columns": {
-        "Cod_Tipo_Servicio": {
-          "name": "Cod_Tipo_Servicio",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Desc_Tipo_Servicio": {
-          "name": "Desc_Tipo_Servicio",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Precio_Referencial": {
-          "name": "Precio_Referencial",
-          "type": "numeric(10, 2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Tipo_Vehiculo": {
-      "name": "Tipo_Vehiculo",
-      "schema": "",
-      "columns": {
-        "Id_Tipo_Vehiculo": {
-          "name": "Id_Tipo_Vehiculo",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Nombre_Tipo": {
-          "name": "Nombre_Tipo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Descripcion_Tipo": {
-          "name": "Descripcion_Tipo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Usuario": {
-      "name": "Usuario",
-      "schema": "",
-      "columns": {
-        "Cedula": {
-          "name": "Cedula",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Nombre_Apellido": {
-          "name": "Nombre_Apellido",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Telefono": {
-          "name": "Telefono",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Correo": {
-          "name": "Correo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "password_hash": {
-          "name": "password_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "email_verified": {
-          "name": "email_verified",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "image": {
-          "name": "image",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Cod_Cargo": {
-          "name": "Cod_Cargo",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "banned": {
-          "name": "banned",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
-        "ban_reason": {
-          "name": "ban_reason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "ban_expires": {
-          "name": "ban_expires",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "Usuario_Cod_Cargo_Cargo_Cod_Cargo_fk": {
-          "name": "Usuario_Cod_Cargo_Cargo_Cod_Cargo_fk",
-          "tableFrom": "Usuario",
-          "tableTo": "Cargo",
-          "columnsFrom": [
-            "Cod_Cargo"
-          ],
-          "columnsTo": [
-            "Cod_Cargo"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "Usuario_Correo_unique": {
-          "name": "Usuario_Correo_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "Correo"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.Vehiculo": {
-      "name": "Vehiculo",
-      "schema": "",
-      "columns": {
-        "Serial_Motor_VIN": {
-          "name": "Serial_Motor_VIN",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "Descripcion_Vehiculo": {
-          "name": "Descripcion_Vehiculo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Ano_Motor": {
-          "name": "Ano_Motor",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Observacion_Vehiculo": {
-          "name": "Observacion_Vehiculo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Placa": {
-          "name": "Placa",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Color": {
-          "name": "Color",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Cod_Modelo": {
-          "name": "Cod_Modelo",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "Id_Tipo_Vehiculo": {
-          "name": "Id_Tipo_Vehiculo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "Id_Cliente_Sistema": {
-          "name": "Id_Cliente_Sistema",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "Vehiculo_Cod_Modelo_Modelo_Cod_Modelo_fk": {
-          "name": "Vehiculo_Cod_Modelo_Modelo_Cod_Modelo_fk",
-          "tableFrom": "Vehiculo",
-          "tableTo": "Modelo",
-          "columnsFrom": [
-            "Cod_Modelo"
-          ],
-          "columnsTo": [
-            "Cod_Modelo"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "Vehiculo_Id_Tipo_Vehiculo_Tipo_Vehiculo_Id_Tipo_Vehiculo_fk": {
-          "name": "Vehiculo_Id_Tipo_Vehiculo_Tipo_Vehiculo_Id_Tipo_Vehiculo_fk",
-          "tableFrom": "Vehiculo",
-          "tableTo": "Tipo_Vehiculo",
-          "columnsFrom": [
-            "Id_Tipo_Vehiculo"
-          ],
-          "columnsTo": [
-            "Id_Tipo_Vehiculo"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "Vehiculo_Id_Cliente_Sistema_Cliente_Id_Cliente_Sistema_fk": {
-          "name": "Vehiculo_Id_Cliente_Sistema_Cliente_Id_Cliente_Sistema_fk",
-          "tableFrom": "Vehiculo",
-          "tableTo": "Cliente",
-          "columnsFrom": [
-            "Id_Cliente_Sistema"
-          ],
-          "columnsTo": [
-            "Id_Cliente_Sistema"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "Vehiculo_Placa_unique": {
-          "name": "Vehiculo_Placa_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "Placa"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.account": {
+    "account": {
       "name": "account",
-      "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "account_id": {
-          "name": "account_id",
+        "userId": {
+          "name": "userId",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
-        "provider_id": {
-          "name": "provider_id",
+        "type": {
+          "name": "type",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
-        "user_id": {
-          "name": "user_id",
+        "provider": {
+          "name": "provider",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
-        "access_token": {
-          "name": "access_token",
+        "providerAccountId": {
+          "name": "providerAccountId",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "autoincrement": false
         },
         "refresh_token": {
           "name": "refresh_token",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
-        "id_token": {
-          "name": "id_token",
+        "access_token": {
+          "name": "access_token",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
-        "access_token_expires_at": {
-          "name": "access_token_expires_at",
-          "type": "timestamp",
+        "expires_at": {
+          "name": "expires_at",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
-        "refresh_token_expires_at": {
-          "name": "refresh_token_expires_at",
-          "type": "timestamp",
+        "token_type": {
+          "name": "token_type",
+          "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
         "scope": {
           "name": "scope",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
-        "password": {
-          "name": "password",
+        "id_token": {
+          "name": "id_token",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
+        "session_state": {
+          "name": "session_state",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "account_user_id_user_id_fk": {
-          "name": "account_user_id_user_id_fk",
+        "account_userId_user_id_fk": {
+          "name": "account_userId_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
           "columnsFrom": [
-            "user_id"
+            "userId"
           ],
           "columnsTo": [
             "id"
@@ -1429,266 +103,836 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
     },
-    "public.session": {
-      "name": "session",
-      "schema": "",
+    "client": {
+      "name": "client",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "token": {
-          "name": "token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "ip_address": {
-          "name": "ip_address",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "user_agent": {
-          "name": "user_agent",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "impersonated_by": {
-          "name": "impersonated_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "session_user_id_user_id_fk": {
-          "name": "session_user_id_user_id_fk",
-          "tableFrom": "session",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "session_token_unique": {
-          "name": "session_token_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.user": {
-      "name": "user",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "name": {
           "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
         "email": {
           "name": "email",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "autoincrement": false
         },
-        "email_verified": {
-          "name": "email_verified",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "image": {
-          "name": "image",
+        "phone": {
+          "name": "phone",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "role": {
-          "name": "role",
+        "address": {
+          "name": "address",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "autoincrement": false
         },
-        "role_id": {
-          "name": "role_id",
+        "city": {
+          "name": "city",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "state": {
+          "name": "state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "cedula": {
+          "name": "cedula",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "delete_at": {
+          "name": "delete_at",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "default": 0
+          "autoincrement": false
         },
-        "banned": {
-          "name": "banned",
-          "type": "boolean",
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "autoincrement": false
         },
-        "ban_reason": {
-          "name": "ban_reason",
-          "type": "text",
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
-        },
-        "ban_expires": {
-          "name": "ban_expires",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "autoincrement": false
         }
       },
-      "indexes": {},
-      "foreignKeys": {
-        "user_role_id_Cargo_Cod_Cargo_fk": {
-          "name": "user_role_id_Cargo_Cod_Cargo_fk",
-          "tableFrom": "user",
-          "tableTo": "Cargo",
-          "columnsFrom": [
-            "role_id"
-          ],
-          "columnsTo": [
-            "Cod_Cargo"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "user_email_unique": {
-          "name": "user_email_unique",
-          "nullsNotDistinct": false,
+      "indexes": {
+        "client_email_unique": {
+          "name": "client_email_unique",
           "columns": [
             "email"
-          ]
+          ],
+          "isUnique": true
+        },
+        "client_cedula_unique": {
+          "name": "client_cedula_unique",
+          "columns": [
+            "cedula"
+          ],
+          "isUnique": true
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     },
-    "public.verification": {
-      "name": "verification",
-      "schema": "",
+    "role": {
+      "name": "role",
       "columns": {
         "id": {
           "name": "id",
           "type": "text",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
-        "identifier": {
-          "name": "identifier",
+        "name": {
+          "name": "name",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "autoincrement": false
         },
-        "value": {
-          "name": "value",
+        "description": {
+          "name": "description",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "timestamp",
+          "type": "integer",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
+      "checkConstraints": {}
+    },
+    "session": {
+      "name": "session",
+      "columns": {
+        "sessionToken": {
+          "name": "sessionToken",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "userId": {
+          "name": "userId",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "expires": {
+          "name": "expires",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "session_userId_user_id_fk": {
+          "name": "session_userId_user_id_fk",
+          "tableFrom": "session",
+          "tableTo": "user",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "ticket": {
+      "name": "ticket",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "vehicle_id": {
+          "name": "vehicle_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "short_description": {
+          "name": "short_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "closed_at": {
+          "name": "closed_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'ABIERTO'"
+        },
+        "priority": {
+          "name": "priority",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'MEDIA'"
+        },
+        "assigned_to": {
+          "name": "assigned_to",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "estimated_cost": {
+          "name": "estimated_cost",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "client_id": {
+          "name": "client_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "approved_by": {
+          "name": "approved_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "approved_at": {
+          "name": "approved_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "payment_method": {
+          "name": "payment_method",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "payment_status": {
+          "name": "payment_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "payment_reference": {
+          "name": "payment_reference",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "payment_currency": {
+          "name": "payment_currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "payment_amount": {
+          "name": "payment_amount",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "payment_date": {
+          "name": "payment_date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "total_amount": {
+          "name": "total_amount",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "time_spent": {
+          "name": "time_spent",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "work_notes": {
+          "name": "work_notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "tool_used": {
+          "name": "tool_used",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "delete_at": {
+          "name": "delete_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ticket_vehicle_id_vehicle_id_fk": {
+          "name": "ticket_vehicle_id_vehicle_id_fk",
+          "tableFrom": "ticket",
+          "tableTo": "vehicle",
+          "columnsFrom": [
+            "vehicle_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "ticket_assigned_to_user_id_fk": {
+          "name": "ticket_assigned_to_user_id_fk",
+          "tableFrom": "ticket",
+          "tableTo": "user",
+          "columnsFrom": [
+            "assigned_to"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "ticket_client_id_client_id_fk": {
+          "name": "ticket_client_id_client_id_fk",
+          "tableFrom": "ticket",
+          "tableTo": "client",
+          "columnsFrom": [
+            "client_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "ticket_approved_by_user_id_fk": {
+          "name": "ticket_approved_by_user_id_fk",
+          "tableFrom": "ticket",
+          "tableTo": "user",
+          "columnsFrom": [
+            "approved_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "user": {
+      "name": "user",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "cedula": {
+          "name": "cedula",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "email_verified": {
+          "name": "email_verified",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "telefono": {
+          "name": "telefono",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'user'"
+        },
+        "role_id": {
+          "name": "role_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "banned": {
+          "name": "banned",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "ban_reason": {
+          "name": "ban_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "ban_expires": {
+          "name": "ban_expires",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "delete_at": {
+          "name": "delete_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "user_cedula_unique": {
+          "name": "user_cedula_unique",
+          "columns": [
+            "cedula"
+          ],
+          "isUnique": true
+        },
+        "user_email_unique": {
+          "name": "user_email_unique",
+          "columns": [
+            "email"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "user_role_id_role_id_fk": {
+          "name": "user_role_id_role_id_fk",
+          "tableFrom": "user",
+          "tableTo": "role",
+          "columnsFrom": [
+            "role_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "vehicle": {
+      "name": "vehicle",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "plate": {
+          "name": "plate",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "make": {
+          "name": "make",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "year": {
+          "name": "year",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "color": {
+          "name": "color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'otro'"
+        },
+        "delete_at": {
+          "name": "delete_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "vehicle_plate_unique": {
+          "name": "vehicle_plate_unique",
+          "columns": [
+            "plate"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "vehicle_owner_id_client_id_fk": {
+          "name": "vehicle_owner_id_client_id_fk",
+          "tableFrom": "vehicle",
+          "tableTo": "client",
+          "columnsFrom": [
+            "owner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "vehicle_issue": {
+      "name": "vehicle_issue",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "severity": {
+          "name": "severity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "issue_descrption": {
+          "name": "issue_descrption",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "issueType": {
+          "name": "issueType",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "delete_at": {
+          "name": "delete_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "vehicle_id": {
+          "name": "vehicle_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "vehicle_issue_vehicle_id_vehicle_id_fk": {
+          "name": "vehicle_issue_vehicle_id_vehicle_id_fk",
+          "tableFrom": "vehicle_issue",
+          "tableTo": "vehicle",
+          "columnsFrom": [
+            "vehicle_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "verificationToken": {
+      "name": "verificationToken",
+      "columns": {
+        "identifier": {
+          "name": "identifier",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "expires": {
+          "name": "expires",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     }
   },
-  "enums": {},
-  "schemas": {},
-  "sequences": {},
-  "roles": {},
-  "policies": {},
   "views": {},
+  "enums": {},
   "_meta": {
-    "columns": {},
     "schemas": {},
-    "tables": {}
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
   }
 }
