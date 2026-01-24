@@ -21,7 +21,7 @@ const AdminUsers: NextPage = () => {
   const router = useRouter();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [updateData, setUpdateData] = useState({
     name: "",
@@ -70,7 +70,7 @@ const AdminUsers: NextPage = () => {
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.cedula?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesRole = !roleFilter || user.role === roleFilter;
+    const matchesRole = roleFilter === "all" || user.role === roleFilter;
 
     return matchesSearch && matchesRole;
   });
@@ -158,7 +158,7 @@ const AdminUsers: NextPage = () => {
                     <SelectValue placeholder="Todos los roles" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos</SelectItem>
+                    <SelectItem value="all">Todos</SelectItem>
                     <SelectItem value="user">Usuario</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
                     <SelectItem value="CLIENTE">Cliente</SelectItem>

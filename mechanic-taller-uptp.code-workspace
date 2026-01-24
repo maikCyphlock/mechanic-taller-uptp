@@ -1,0 +1,13 @@
+{
+    "folders": [
+        {
+            "path": "../odookistan/docker_odoo_mecatec"
+        },
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "python.languageServer": "None"
+    }
+}

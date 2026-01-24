@@ -8,6 +8,13 @@
       "when": 1765122583083,
       "tag": "0000_striped_major_mapleleaf",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1765239211397,
+      "tag": "0001_sparkling_thunderbird",
+      "breakpoints": true
     }
   ]
 }

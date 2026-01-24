@@ -3,6 +3,7 @@ import { createTRPCRouter, protectedProcedure, adminProcedure } from "~/server/a
 import { ticket, client, vehicle, users } from "~/server/db/schema";
 import { eq, and, isNull } from "drizzle-orm";
 import { randomUUID } from "crypto";
+import { addVehicleToSyncQueue, processSyncQueueForVehicles } from "~/lib/odoo/connectors/vehicle-connector";
 
 export const ticketRouter = createTRPCRouter({
   getAll: adminProcedure.query(async ({ ctx }) => {
@@ -74,55 +75,95 @@ export const ticketRouter = createTRPCRouter({
         vehicleDetails: z.object({
           type: z.enum(["automovil", "camioneta", "camion", "motocicleta", "autobus", "otro"]),
           plate: z.string().optional(),
+          make: z.string().optional(),
+          model: z.string().optional(),
         }),
         issueType: z.string(),
         issueDescription: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const vehicleId = randomUUID();
-      const ticketId = randomUUID();
+      // Trigger Odoo Sync for the new client (Fire and Forget)
+      // Note: We use the clientId from inside the tx (but variable scope?). 
+      // We need to capture clientId. It was defined inside tx.
+      // Refactoring to return clientId from tx.
 
-      await ctx.db.transaction(async (tx) => {
-        // Check if client exists
-        let existingClient = await tx.query.client.findFirst({
-          where: eq(client.cedula, input.cedula),
-        });
+      // OR: simpler:
+      // The clientId logic inside tx is complex.
+      // Let's refactor the transaction to return values.
+      const { ticketId: createdTicketId, vehicleId: createdVehicleId, clientId: finalClientId, isNewClient } = await ctx.db.transaction(async (tx) => {
+        try {
+          const vehicleId = randomUUID();
+          const ticketId = randomUUID();
+          // Check if client exists
+          // Handle empty strings as null/undefined to check properly
+          const cleanCedula = input.cedula?.trim() || null;
 
-        let clientId: string;
-        if (existingClient) {
-          clientId = existingClient.id;
-        } else {
-          clientId = randomUUID();
-          await tx.insert(client).values({
-            id: clientId,
-            name: input.name,
-            phone: input.phone,
-            cedula: input.cedula,
+          let existingClient = null;
+
+          if (cleanCedula) {
+            existingClient = await tx.query.client.findFirst({
+              where: eq(client.cedula, cleanCedula),
+            });
+          }
+
+          let clientId: string;
+          let isNewClient = false;
+
+          if (existingClient) {
+            clientId = existingClient.id;
+            console.log(`[TicketCreate] Found existing client ${clientId} by cedula ${cleanCedula}`);
+          } else {
+            clientId = randomUUID();
+            isNewClient = true;
+            console.log(`[TicketCreate] Creating new client ${clientId} with cedula ${cleanCedula}`);
+
+            await tx.insert(client).values({
+              id: clientId,
+              name: input.name,
+              phone: input.phone || null,
+              cedula: cleanCedula,
+            });
+          }
+
+          // Create vehicle
+          await tx.insert(vehicle).values({
+            id: vehicleId,
+            type: input.vehicleDetails.type,
+            plate: input.vehicleDetails.plate || null,
+            make: input.vehicleDetails.make,
+            model: input.vehicleDetails.model,
+            ownerId: clientId,
           });
+
+          // Create ticket
+          await tx.insert(ticket).values({
+            id: ticketId,
+            vehicleId,
+            clientId,
+            assignedTo: ctx.session.user.id,
+            short_description: input.issueDescription,
+            status: "ABIERTO",
+            priority: "MEDIA",
+          });
+
+          return { ticketId, vehicleId, clientId, isNewClient };
+        } catch (error) {
+          console.error("Error in ticket creation transaction:", error);
+          throw error;
         }
-
-        // Create vehicle
-        await tx.insert(vehicle).values({
-          id: vehicleId,
-          type: input.vehicleDetails.type,
-          plate: input.vehicleDetails.plate,
-          ownerId: clientId,
-        });
-
-        // Create ticket
-        await tx.insert(ticket).values({
-          id: ticketId,
-          vehicleId,
-          clientId,
-          assignedTo: ctx.session.user.id,
-          short_description: input.issueDescription,
-          status: "ABIERTO",
-          priority: "MEDIA",
-        });
       });
 
-      return { success: true, ticketId };
+      // Trigger Odoo Sync
+      await addVehicleToSyncQueue(createdVehicleId, 'create');
+      // Sync client if new (or always update? Let's sync if new for now)
+      // We import syncClientToOdoo differently because it's void
+      const { syncClientToOdoo } = await import("~/lib/odoo/connectors/client-connector");
+      void syncClientToOdoo(finalClientId);
+
+      void processSyncQueueForVehicles();
+
+      return { success: true, ticketId: createdTicketId };
     }),
 
   update: protectedProcedure

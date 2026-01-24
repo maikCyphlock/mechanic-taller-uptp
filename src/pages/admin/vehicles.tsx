@@ -1,321 +1,203 @@
 import { type NextPage } from "next";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
-import { api } from "~/utils/api";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+import { Badge } from "~/components/ui/badge";
+import { SimpleAutocomplete } from "~/components/ui/simple-autocomplete";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "~/components/ui/dialog";
 import { toast } from "sonner";
+import { callOdooJsonRpc } from "~/lib/odoo/frontend-api";
+import { useOdooCache } from "~/hooks/useOdooCache";
+import { Breadcrumbs } from "~/components/layout/breadcrumbs";
+import { User, Car, ArrowRight, Phone, Mail, MapPin, Calendar, Clock, Ticket } from "lucide-react";
 
 const AdminVehicles: NextPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
+  const [vehicles, setVehicles] = useState<any[]>([]);
+  const {
+    vehicles: cachedVehicles,
+    brands: cachedBrands,
+    models: cachedModels,
+    isLoading: cacheLoading,
+    syncFromOdoo,
+    searchBrands,
+    searchModels
+  } = useOdooCache();
   const [searchTerm, setSearchTerm] = useState("");
-  const [typeFilter, setTypeFilter] = useState<string>("");
-  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
-  const [updateData, setUpdateData] = useState({
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
+  const [createData, setCreateData] = useState({
     plate: "",
     make: "",
     model: "",
-    year: "",
-    color: "",
-    type: "",
-  });
-
-  const { data: vehicles, isLoading, refetch } = api.vehicle.getAll.useQuery();
-  const updateVehicleMutation = api.vehicle.update.useMutation({
-    onSuccess: () => {
-      toast.success("Vehículo actualizado exitosamente");
-      refetch();
-      setSelectedVehicle(null);
-    },
-    onError: (error) => {
-      toast.error("Error al actualizar el vehículo: " + error.message);
-    },
+    type: "automovil",
   });
 
   useEffect(() => {
-    if (status === "loading") return; // Still loading
+    setVehicles(cachedVehicles);
+  }, [cachedVehicles]);
+
+  useEffect(() => {
+    if (status === "loading") return;
     if (!session || session.user.role !== "admin") {
       router.push("/");
+      return;
     }
   }, [session, status, router]);
 
-  if (status === "loading") {
-    return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
-  }
+  const brandsList = searchBrands("");
+  const currentModels = searchModels("", createData.make);
 
-  if (!session || session.user.role !== "admin") {
-    return null; // Will redirect via useEffect
-  }
+  const handleCreateVehicle = async () => {
+    try {
+      await callOdooJsonRpc('create_vehicle', createData);
+      toast.success("Vehículo creado");
+      setIsCreateDialogOpen(false);
+      syncFromOdoo(true); // Force sync
+    } catch (error: any) {
+      toast.error("Error: " + error.message);
+    }
+  };
 
-  const filteredVehicles = vehicles?.filter((vehicle) => {
-    const matchesSearch =
-      !searchTerm ||
-      vehicle.plate?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.make?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.model?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.color?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesType = !typeFilter || vehicle.type === typeFilter;
-
-    return matchesSearch && matchesType;
+  const filteredVehicles = vehicles.filter((v) => {
+    const term = searchTerm.toLowerCase();
+    return !searchTerm ||
+      v.license_plate?.toLowerCase().includes(term) ||
+      v.brand?.toLowerCase().includes(term) ||
+      v.model?.toLowerCase().includes(term) ||
+      v.owner?.name?.toLowerCase().includes(term);
   });
 
-  const getVehicleTypeLabel = (type: string) => {
-    const typeLabels = {
-      automovil: "Automóvil",
-      camioneta: "Camioneta",
-      camion: "Camión",
-      motocicleta: "Motocicleta",
-      autobus: "Autobús",
-      otro: "Otro",
-    };
-    return typeLabels[type as keyof typeof typeLabels] || type;
-  };
-
-  const handleUpdateVehicle = () => {
-    if (!selectedVehicle) return;
-
-    const data: any = {};
-
-    if (updateData.plate) data.plate = updateData.plate;
-    if (updateData.make) data.make = updateData.make;
-    if (updateData.model) data.model = updateData.model;
-    if (updateData.year) data.year = parseInt(updateData.year);
-    if (updateData.color) data.color = updateData.color;
-    if (updateData.type) data.type = updateData.type;
-
-    updateVehicleMutation.mutate({
-      id: selectedVehicle.id,
-      ...data,
-    });
-  };
-
-  const openEditDialog = (vehicle: any) => {
-    setSelectedVehicle(vehicle);
-    setUpdateData({
-      plate: vehicle.plate || "",
-      make: vehicle.make || "",
-      model: vehicle.model || "",
-      year: vehicle.year?.toString() || "",
-      color: vehicle.color || "",
-      type: vehicle.type || "",
-    });
-  };
+  if (status === "loading") return <div className="p-8 text-center">Cargando...</div>;
+  if (!session || session.user.role !== "admin") return null;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-6">
-          <Button variant="outline" asChild className="mb-4">
-            <Link href="/">← Volver al inicio</Link>
-          </Button>
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Vehículos</h1>
-          <p className="text-gray-600 mt-2">Administra todos los vehículos del sistema</p>
-        </div>
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <Breadcrumbs items={[{ label: "Admin", href: "/" }, { label: "Vehículos" }]} />
 
-        {/* Filters */}
-        <Card className="mb-6">
-          <CardContent className="py-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="search">Buscar</Label>
-                <Input
-                  id="search"
-                  placeholder="Placa, marca, modelo, color..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">Vehículos</h1>
+          <p className="text-slate-500 mt-1">Gestión de la flota registrada en Odoo.</p>
+        </div>
+        <Button size="lg" className="bg-blue-600 hover:bg-blue-700 shadow-md" onClick={() => setIsCreateDialogOpen(true)}>
+          <Car className="mr-2 h-5 w-5" /> Nuevo Vehículo
+        </Button>
+      </div>
+
+      <div className="mb-8">
+        <div className="relative">
+          <Input
+            className="pl-10 h-12 shadow-sm border-slate-200"
+            placeholder="Buscar por placa, marca, modelo o dueño..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+          />
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+          </div>
+        </div>
+      </div>
+
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Registrar Nuevo Vehículo</DialogTitle>
+            <DialogDescription>Asegúrate de que la información coincida con la de Odoo.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-5 pt-4">
+            <div className="space-y-2">
+              <Label>Placa / Matrícula</Label>
+              <Input placeholder="ABC-123" value={createData.plate} onChange={e => setCreateData(d => ({ ...d, plate: e.target.value }))} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Marca</Label>
+                <SimpleAutocomplete options={brandsList} value={createData.make} onChange={val => setCreateData(d => ({ ...d, make: val }))} />
               </div>
-              <div>
-                <Label htmlFor="type">Tipo</Label>
-                <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Todos los tipos" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">Todos</SelectItem>
-                    <SelectItem value="automovil">Automóvil</SelectItem>
-                    <SelectItem value="camioneta">Camioneta</SelectItem>
-                    <SelectItem value="camion">Camión</SelectItem>
-                    <SelectItem value="motocicleta">Motocicleta</SelectItem>
-                    <SelectItem value="autobus">Autobús</SelectItem>
-                    <SelectItem value="otro">Otro</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-end">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setTypeFilter("");
-                    setSearchTerm("");
-                  }}
-                  className="w-full"
-                >
-                  Limpiar Filtros
-                </Button>
+              <div className="space-y-2">
+                <Label>Modelo</Label>
+                <SimpleAutocomplete options={currentModels} value={createData.model} onChange={val => setCreateData(d => ({ ...d, model: val }))} />
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {isLoading ? (
-          <div className="text-center py-8">
-            <p className="text-gray-600">Cargando vehículos...</p>
+            <Button className="w-full h-12 text-lg bg-blue-600" onClick={handleCreateVehicle}>Crear Vehículo</Button>
           </div>
-        ) : !filteredVehicles || filteredVehicles.length === 0 ? (
-          <Card>
-            <CardContent className="py-12">
-              <div className="text-center">
-                <div className="text-6xl mb-4">🚗</div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No se encontraron vehículos</h3>
-                <p className="text-gray-600">
-                  No hay vehículos que coincidan con los filtros aplicados.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4">
-            {filteredVehicles.map((vehicle) => (
-              <Card key={vehicle.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-lg">
-                        {vehicle.plate ? `Placa: ${vehicle.plate}` : `Vehículo ${vehicle.id.slice(-8)}`}
-                      </CardTitle>
-                      <CardDescription>
-                        {getVehicleTypeLabel(vehicle.type)} • Creado el {format(new Date(vehicle.createdAt), "PPP", { locale: es })}
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-1">Información del Vehículo</h4>
-                      <div className="text-sm text-gray-600">
-                        {vehicle.make && <p><strong>Marca:</strong> {vehicle.make}</p>}
-                        {vehicle.model && <p><strong>Modelo:</strong> {vehicle.model}</p>}
-                        {vehicle.year && <p><strong>Año:</strong> {vehicle.year}</p>}
-                        {vehicle.color && <p><strong>Color:</strong> {vehicle.color}</p>}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-1">Información Adicional</h4>
-                      <div className="text-sm text-gray-600">
-                        <p><strong>Tipo:</strong> {getVehicleTypeLabel(vehicle.type)}</p>
-                        {vehicle.plate && <p><strong>Placa:</strong> {vehicle.plate}</p>}
-                        <p><strong>ID:</strong> {vehicle.id.slice(-8)}</p>
-                      </div>
-                    </div>
-                  </div>
+        </DialogContent>
+      </Dialog>
 
-                  <div className="flex gap-2 pt-4 border-t">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm" onClick={() => openEditDialog(vehicle)}>
-                          Editar Vehículo
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>Editar Vehículo: {vehicle.plate || vehicle.id.slice(-8)}</DialogTitle>
-                          <DialogDescription>
-                            Actualiza la información del vehículo
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <Label htmlFor="plate">Placa</Label>
-                              <Input
-                                id="plate"
-                                value={updateData.plate}
-                                onChange={(e) => setUpdateData(prev => ({ ...prev, plate: e.target.value }))}
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="type">Tipo de Vehículo</Label>
-                              <Select value={updateData.type} onValueChange={(value) => setUpdateData(prev => ({ ...prev, type: value }))}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Seleccionar tipo" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="automovil">Automóvil</SelectItem>
-                                  <SelectItem value="camioneta">Camioneta</SelectItem>
-                                  <SelectItem value="camion">Camión</SelectItem>
-                                  <SelectItem value="motocicleta">Motocicleta</SelectItem>
-                                  <SelectItem value="autobus">Autobús</SelectItem>
-                                  <SelectItem value="otro">Otro</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-3 gap-4">
-                            <div>
-                              <Label htmlFor="make">Marca</Label>
-                              <Input
-                                id="make"
-                                value={updateData.make}
-                                onChange={(e) => setUpdateData(prev => ({ ...prev, make: e.target.value }))}
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="model">Modelo</Label>
-                              <Input
-                                id="model"
-                                value={updateData.model}
-                                onChange={(e) => setUpdateData(prev => ({ ...prev, model: e.target.value }))}
-                              />
-                            </div>
-                            <div>
-                              <Label htmlFor="year">Año</Label>
-                              <Input
-                                id="year"
-                                type="number"
-                                value={updateData.year}
-                                onChange={(e) => setUpdateData(prev => ({ ...prev, year: e.target.value }))}
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <Label htmlFor="color">Color</Label>
-                            <Input
-                              id="color"
-                              value={updateData.color}
-                              onChange={(e) => setUpdateData(prev => ({ ...prev, color: e.target.value }))}
-                            />
-                          </div>
-                          <div className="flex gap-2 pt-4">
-                            <Button onClick={handleUpdateVehicle} disabled={updateVehicleMutation.isPending}>
-                              {updateVehicleMutation.isPending ? "Actualizando..." : "Actualizar Vehículo"}
-                            </Button>
-                            <Button variant="outline" onClick={() => setSelectedVehicle(null)}>
-                              Cancelar
-                            </Button>
-                          </div>
+      {cacheLoading ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600" />
+          <p className="text-slate-500 font-medium animate-pulse">Consultando Odoo...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredVehicles.map(v => (
+            <Card key={v.id} className="hover:shadow-lg transition-all border-slate-200 group overflow-hidden">
+              <CardHeader className="bg-slate-50/50 pb-4 border-b">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-xl font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
+                      {v.license_plate || "Sin Placa"}
+                    </CardTitle>
+                    <CardDescription className="text-slate-600 font-medium">
+                      {v.brand_name || v.brand} {v.model_name || v.model}
+                    </CardDescription>
+                  </div>
+                  <Badge variant="outline" className="bg-white border-slate-200 text-slate-500 font-mono">
+                    #{v.id}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-5 pb-5">
+                <div className="space-y-4">
+                  {v.owner ? (
+                    <Link href={`/admin/clients/${v.owner.id}`} className="block p-3 rounded-lg bg-blue-50/50 hover:bg-blue-50 border border-blue-100/50 transition-colors group/owner">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-full bg-blue-100 text-blue-600">
+                          <User className="h-4 w-4" />
                         </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-blue-800 uppercase tracking-wider">Propietario</p>
+                          <p className="text-sm font-bold text-slate-900 truncate">{v.owner.name}</p>
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-blue-400 group-hover/owner:translate-x-1 transition-transform" />
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className="p-3 rounded-lg bg-slate-50 border border-dashed border-slate-200">
+                      <p className="text-xs text-slate-400 italic">Sin propietario asignado</p>
+                    </div>
+                  )}
+
+                  <Link href={`/admin/vehicles/${v.id}`}>
+                    <Button variant="outline" className="w-full border-slate-200 hover:bg-slate-50 hover:text-slate-900 group/btn">
+                      Ver Ficha Técnica <ArrowRight className="ml-2 h-4 w-4 text-slate-400 group-hover/btn:translate-x-1 transition-transform" />
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {filteredVehicles.length === 0 && (
+            <div className="col-span-full py-20 text-center">
+              <div className="bg-slate-50 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                <Car className="h-8 w-8 text-slate-300" />
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900">No se encontraron vehículos</h3>
+              <p className="text-slate-500">Intenta con otros términos de búsqueda.</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

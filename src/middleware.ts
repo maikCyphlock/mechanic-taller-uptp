@@ -8,27 +8,35 @@ export default withAuth(
     callbacks: {
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
-        
+
         // Public routes
         if (pathname.startsWith("/auth/") || pathname === "/") {
           return true;
         }
-        
+
         // Protected routes require authentication
         if (!token) {
           return false;
         }
-        
-        // Admin routes require admin role
-        if (pathname.startsWith("/admin/")) {
-          return token.role === "admin";
+
+        const role = token.role as string;
+
+        // Admin routes require admin or manager role
+        if (pathname.startsWith("/admin")) {
+          return role === "admin" || role === "manager"; // Admin gets full access, Manager gets most
         }
-        
-        // User routes require email verification
-        if (pathname.startsWith("/user/")) {
-          return !!token.emailVerified;
+
+        // Mechanic routes
+        if (pathname.startsWith("/mechanic")) {
+          return role === "mechanic" || role === "admin" || role === "manager";
         }
-        
+
+        // User/Client routes
+        if (pathname.startsWith("/user") || pathname.startsWith("/client")) {
+          // Generally anyone logged in can be a 'user' but 'client' specific features might need check
+          return true;
+        }
+
         return true;
       },
     },

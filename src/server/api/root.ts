@@ -5,14 +5,16 @@ import { vehicleRouter } from "./routers/vehicle";
 import { userRouter } from "./routers/user";
 import { vehicleIssueRouter } from "./routers/vehicleIssue";
 import { roleRouter } from "./routers/role";
+import { syncRouter } from "./routers/sync";
 
 export const appRouter = createTRPCRouter({
   ticket: ticketRouter,
-  client: clientRouter,
+  clients: clientRouter, // Renombrado para evitar conflicto con método built-in 'client'
   vehicle: vehicleRouter,
   user: userRouter,
   vehicleIssue: vehicleIssueRouter,
   role: roleRouter,
+  sync: syncRouter,
 });
 
 export type AppRouter = typeof appRouter;

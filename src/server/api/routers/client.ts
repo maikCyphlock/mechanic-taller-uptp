@@ -8,6 +8,17 @@ export const clientRouter = createTRPCRouter({
     return await ctx.db.select().from(client);
   }),
 
+  getAllLite: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.db
+      .select({
+        id: client.id,
+        name: client.name,
+        cedula: client.cedula,
+        phone: client.phone,
+      })
+      .from(client);
+  }),
+
   getById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -17,6 +28,26 @@ export const clientRouter = createTRPCRouter({
         .where(eq(client.id, input.id));
 
       return result[0];
+    }),
+
+  search: protectedProcedure
+    .input(z.object({ query: z.string() }))
+    .query(async ({ ctx, input }) => {
+      if (!input.query) return [];
+
+      const { or, like } = await import("drizzle-orm");
+
+      // Use like for partial matching
+      return await ctx.db
+        .select()
+        .from(client)
+        .where(
+          or(
+            like(client.name, `%${input.query}%`),
+            like(client.cedula, `%${input.query}%`)
+          )
+        )
+        .limit(10);
     }),
 
   update: adminProcedure

@@ -34,19 +34,34 @@ declare module "next-auth" {
 
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, token }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: token.sub,
-        role: token.role,
-        emailVerified: token.emailVerified,
-        banned: token.banned,
-      },
-    }),
+    session: ({ session, token }) => {
+      let role = token.role as string;
+
+      // Normalize legacy roles
+      if (role === "GERENTE") role = "manager";
+      if (role === "CLIENTE") role = "client";
+      if (role === "SUPERADMIN") role = "admin";
+
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.sub,
+          role: role,
+          emailVerified: token.emailVerified,
+          banned: token.banned,
+        },
+      };
+    },
     jwt: ({ token, user }) => {
       if (user) {
-        token.role = user.role;
+        let role = user.role;
+        // Normalize legacy roles
+        if (role === "GERENTE") role = "manager";
+        if (role === "CLIENTE") role = "client";
+        if (role === "SUPERADMIN") role = "admin";
+
+        token.role = role;
         token.emailVerified = user.emailVerified;
         token.banned = user.banned;
       }

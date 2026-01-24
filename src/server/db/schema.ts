@@ -4,10 +4,12 @@ import { relations } from "drizzle-orm";
 // Note: SQLite doesn't support enums, so we use text with type constraints
 export const statusTicketValues = ["ABIERTO", "EN_PROCESO", "CERRADO", "CANCELADO", "APROBADO"] as const;
 export const prioridadTicketValues = ["BAJA", "MEDIA", "ALTA"] as const;
-export const roleValues = ["user", "admin", "CLIENTE", "GERENTE", "OTRO", "SUPERADMIN"] as const;
+export const roleValues = ["user", "admin", "manager", "mechanic", "client"] as const;
 export const tipoVehiculoValues = ["automovil", "camioneta", "camion", "motocicleta", "autobus", "otro"] as const;
 export const paymentStatusValues = ["PENDIENTE", "COMPLETADO", "FALLIDO"] as const;
 export const paymentMethodValues = ["EFECTIVO", "TARJETA_CREDITO", "TARJETA_DEBITO", "TRANSFERENCIA_BANCARIA", "PAGO_MOVIL", "OTRO"] as const;
+export const syncStatusValues = ["not_synced", "synced", "pending", "error", "conflict"] as const;
+export const appointmentStatusValues = ["PENDIENTE", "CONFIRMADA", "EN_CURSO", "COMPLETADA", "CANCELADA"] as const;
 
 // NextAuth tables
 export const accounts = sqliteTable("account", {
@@ -100,6 +102,11 @@ export const vehicle = sqliteTable("vehicle", {
   type: text('type', { enum: tipoVehiculoValues }).notNull().default('otro'),
   delete_at: integer('delete_at', { mode: 'timestamp' }),
   ownerId: text('owner_id').references(() => client.id, { onDelete: 'cascade' }),
+  // Campos de sincronización Odoo
+  odooId: integer('odoo_id'),
+  syncStatus: text('sync_status', { enum: syncStatusValues }).notNull().default('not_synced'),
+  syncedAt: integer('synced_at', { mode: 'timestamp' }),
+  syncError: text('sync_error'),
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
 });
@@ -128,6 +135,11 @@ export const ticket = sqliteTable("ticket", {
   work_notes: text('work_notes'),
   tool_used: text('tool_used'),
   delete_at: integer('delete_at', { mode: 'timestamp' }),
+  // Campos de sincronización Odoo
+  odooId: integer('odoo_id'),
+  syncStatus: text('sync_status', { enum: syncStatusValues }).notNull().default('not_synced'),
+  syncedAt: integer('synced_at', { mode: 'timestamp' }),
+  syncError: text('sync_error'),
   createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
 });
@@ -196,4 +208,78 @@ export const vehicleIssueRelations = relations(vehicleIssue, ({ one }) => ({
 
 export const roleRelations = relations(role, ({ many }) => ({
   users: many(users),
+}));
+
+// --- Nuevas Tablas para Integración Odoo ---
+
+// Tabla de Inventario (mapea product.template de Odoo)
+export const inventory = sqliteTable("inventory", {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  description: text('description'),
+  serialNumber: text('serial_number'),
+  quantity: integer('quantity').notNull().default(0),
+  price: text('price'), // Using text for decimal values in SQLite
+  category: text('category'),
+  location: text('location'),
+  minStock: integer('min_stock').default(0),
+  maxStock: integer('max_stock'),
+  // Campos de sincronización Odoo
+  odooId: integer('odoo_id'),
+  syncStatus: text('sync_status', { enum: syncStatusValues }).notNull().default('not_synced'),
+  syncedAt: integer('synced_at', { mode: 'timestamp' }),
+  syncError: text('sync_error'),
+  delete_at: integer('delete_at', { mode: 'timestamp' }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+});
+
+// Tabla de Citas (mapea mecatec.appointment de Odoo)
+export const appointment = sqliteTable("appointment", {
+  id: text('id').primaryKey(),
+  date: integer('date', { mode: 'timestamp' }).notNull(),
+  clientId: text('client_id').references(() => client.id, { onDelete: 'set null' }),
+  vehicleId: text('vehicle_id').references(() => vehicle.id, { onDelete: 'set null' }),
+  reason: text('reason'),
+  notes: text('notes'),
+  status: text('status', { enum: appointmentStatusValues }).notNull().default('PENDIENTE'),
+  // Campos de sincronización Odoo
+  odooId: integer('odoo_id'),
+  syncStatus: text('sync_status', { enum: syncStatusValues }).notNull().default('not_synced'),
+  syncedAt: integer('synced_at', { mode: 'timestamp' }),
+  syncError: text('sync_error'),
+  delete_at: integer('delete_at', { mode: 'timestamp' }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+});
+
+// Tabla de Cola de Sincronización
+export const syncQueue = sqliteTable("sync_queue", {
+  id: text('id').primaryKey(),
+  entityType: text('entity_type', { enum: ['inventory', 'vehicle', 'ticket', 'appointment'] as const }).notNull(),
+  entityId: text('entity_id').notNull(),
+  operation: text('operation', { enum: ['create', 'update', 'delete'] as const }).notNull(),
+  data: text('data'), // JSON serializado
+  attempts: integer('attempts').notNull().default(0),
+  lastAttempt: integer('last_attempt', { mode: 'timestamp' }),
+  error: text('error'),
+  status: text('status', { enum: ['pending', 'processing', 'completed', 'failed'] as const }).notNull().default('pending'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).notNull(),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).$defaultFn(() => new Date()).$onUpdateFn(() => new Date()).notNull(),
+});
+
+// Relaciones para nuevas tablas
+export const inventoryRelations = relations(inventory, ({ many }) => ({
+  // Potencialmente relacionar con tickets o partes usadas en el futuro
+}));
+
+export const appointmentRelations = relations(appointment, ({ one }) => ({
+  client: one(client, {
+    fields: [appointment.clientId],
+    references: [client.id],
+  }),
+  vehicle: one(vehicle, {
+    fields: [appointment.vehicleId],
+    references: [vehicle.id],
+  }),
 }));

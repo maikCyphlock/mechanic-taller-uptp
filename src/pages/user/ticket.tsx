@@ -2,203 +2,244 @@ import { type NextPage } from "next";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { Textarea } from "~/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
-import { api } from "~/utils/api";
 import { toast } from "sonner";
+import { ClientAutocomplete } from "~/components/ticket/ClientAutocomplete";
+import { BrandAutocomplete } from "~/components/ticket/BrandAutocomplete";
+import { ModelAutocomplete } from "~/components/ticket/ModelAutocomplete";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Label } from "~/components/ui/label";
+import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
+import { Button } from "~/components/ui/button";
+import { User, Car, Ticket as TicketIcon } from "lucide-react";
 
 const CreateTicket: NextPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    name: "",
-    phone: "",
-    cedula: "",
-    vehicleType: "" as "automovil" | "camioneta" | "camion" | "motocicleta" | "autobus" | "otro",
-    plate: "",
-    issueType: "",
-    issueDescription: "",
+  const [loading, setLoading] = useState(false);
+
+  const [form, setForm] = useState({
+    clientId: null as number | null,
+    clientName: "",
+    clientPhone: "",
+    clientCedula: "",
+    vehiclePlate: "",
+    vehicleBrand: "",
+    vehicleModel: "",
+    issueTitle: "",
+    issueDesc: "",
   });
 
   useEffect(() => {
-    if (status === "loading") return; // Still loading
-    if (!session) {
-      router.push("/auth/signin");
-    }
+    if (status !== "loading" && !session) router.push("/auth/signin");
   }, [session, status, router]);
 
-  const createTicketMutation = api.ticket.create.useMutation({
-    onSuccess: () => {
-      toast.success("Ticket creado exitosamente");
-      router.push("/user/dashboard");
-    },
-    onError: (error) => {
-      toast.error("Error al crear el ticket: " + error.message);
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    createTicketMutation.mutate({
-      name: formData.name,
-      phone: formData.phone,
-      cedula: formData.cedula,
-      vehicleDetails: {
-        type: formData.vehicleType,
-        plate: formData.plate || undefined,
-      },
-      issueType: formData.issueType,
-      issueDescription: formData.issueDescription,
+  const callOdoo = async (action: string, data: any) => {
+    const res = await fetch("/api/odoo/jsonrpc", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, data }),
     });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Error");
+    return json.id;
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleSelectClient = (client: any) => {
+    setForm(f => ({
+      ...f,
+      clientId: client.id,
+      clientName: client.name,
+      clientCedula: client.vat || client.cedula || "",
+      clientPhone: client.phone || "",
+    }));
   };
 
-  if (status === "loading") {
-    return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-  if (!session) {
-    return null; // Will redirect via useEffect
-  }
+    try {
+      // 1. Crear/Obtener cliente
+      const clientId = await callOdoo("create_client", {
+        name: form.clientName,
+        phone: form.clientPhone,
+        cedula: form.clientCedula,
+      });
+
+      // 2. Crear vehículo
+      const vehicleId = await callOdoo("create_vehicle", {
+        plate: form.vehiclePlate,
+        brand: form.vehicleBrand,
+        model: form.vehicleModel,
+        owner_id: clientId,
+      });
+
+      // 3. Crear ticket
+      console.log("Creando ticket con IDs:", { clientId, vehicleId });
+      const ticketId = await callOdoo("create_ticket", {
+        title: form.issueTitle,
+        description: form.issueDesc,
+        date: new Date().toISOString().split("T")[0],
+        client_id: clientId,
+        vehicle_id: vehicleId,
+      });
+
+      toast.success(`Ticket creado con éxito!`);
+      router.push("/");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (status === "loading") return <div className="p-8">Cargando...</div>;
+  if (!session) return null;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-6">
-          <Button variant="outline" asChild className="mb-4">
-            <Link href="/">← Volver al inicio</Link>
-          </Button>
-          <h1 className="text-3xl font-bold text-gray-900">Crear Nuevo Ticket</h1>
-          <p className="text-gray-600 mt-2">Complete el formulario para crear una nueva solicitud de servicio</p>
-        </div>
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          Nueva Solicitud de Servicio
+        </h1>
+        <p className="mt-2 text-slate-600">
+          Completa los datos del cliente, vehículo y el detalle del problema.
+        </p>
+      </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Información del Cliente y Vehículo</CardTitle>
-            <CardDescription>
-              Proporcione los detalles del cliente y el vehículo que necesita servicio
-            </CardDescription>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Sección Cliente */}
+        <Card className="shadow-sm border-slate-200">
+          <CardHeader className="bg-slate-50/50 pb-4 border-b">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <User className="h-5 w-5 text-blue-600" />
+              Información del Cliente
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Client Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nombre Completo *</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("name", e.target.value)}
-                    placeholder="Ingrese el nombre completo"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cedula">Cédula *</Label>
-                  <Input
-                    id="cedula"
-                    type="text"
-                    required
-                    value={formData.cedula}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("cedula", e.target.value)}
-                    placeholder="Ingrese la cédula"
-                  />
-                </div>
-              </div>
-
+          <CardContent className="pt-6 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="clientName">Nombre y Apellido *</Label>
+              <ClientAutocomplete
+                id="clientName"
+                value={form.clientName}
+                onChange={(val) => setForm(f => ({ ...f, clientName: val, clientId: null }))}
+                onSelectClient={handleSelectClient}
+                placeholder="Busca o escribe el nombre..."
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="phone">Teléfono *</Label>
+                <Label htmlFor="cedula">Cédula / RIF *</Label>
                 <Input
-                  id="phone"
-                  type="tel"
+                  id="cedula"
+                  placeholder="V-12345678"
                   required
-                  value={formData.phone}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("phone", e.target.value)}
-                  placeholder="Ingrese el número de teléfono"
+                  value={form.clientCedula}
+                  onChange={e => setForm(f => ({ ...f, clientCedula: e.target.value, clientId: null }))}
                 />
               </div>
-
-              {/* Vehicle Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Información del Vehículo</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="vehicleType">Tipo de Vehículo *</Label>
-                    <Select value={formData.vehicleType} onValueChange={(value) => handleInputChange("vehicleType", value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione el tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="automovil">Automóvil</SelectItem>
-                        <SelectItem value="camioneta">Camioneta</SelectItem>
-                        <SelectItem value="camion">Camión</SelectItem>
-                        <SelectItem value="motocicleta">Motocicleta</SelectItem>
-                        <SelectItem value="autobus">Autobús</SelectItem>
-                        <SelectItem value="otro">Otro</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="plate">Placa (Opcional)</Label>
-                    <Input
-                      id="plate"
-                      type="text"
-                      value={formData.plate}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("plate", e.target.value)}
-                      placeholder="Ingrese la placa del vehículo"
-                    />
-                  </div>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Teléfono</Label>
+                <Input
+                  id="phone"
+                  placeholder="0412-1234567"
+                  value={form.clientPhone}
+                  onChange={e => setForm(f => ({ ...f, clientPhone: e.target.value }))}
+                />
               </div>
-
-              {/* Issue Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Información del Problema</h3>
-                <div className="space-y-2">
-                  <Label htmlFor="issueType">Tipo de Problema *</Label>
-                  <Input
-                    id="issueType"
-                    type="text"
-                    required
-                    value={formData.issueType}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange("issueType", e.target.value)}
-                    placeholder="Ej: Motor, Frenos, Electricidad, etc."
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="issueDescription">Descripción del Problema *</Label>
-                  <Textarea
-                    id="issueDescription"
-                    required
-                    value={formData.issueDescription}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleInputChange("issueDescription", e.target.value)}
-                    placeholder="Describa detalladamente el problema que presenta el vehículo"
-                    rows={4}
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-4 pt-4">
-                <Button type="submit" disabled={createTicketMutation.isPending} className="flex-1">
-                  {createTicketMutation.isPending ? "Creando..." : "Crear Ticket"}
-                </Button>
-                <Button type="button" variant="outline" onClick={() => router.push("/")} className="flex-1">
-                  Cancelar
-                </Button>
-              </div>
-            </form>
+            </div>
           </CardContent>
         </Card>
-      </div>
+
+        {/* Sección Vehículo */}
+        <Card className="shadow-sm border-slate-200">
+          <CardHeader className="bg-slate-50/50 pb-4 border-b">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Car className="h-5 w-5 text-emerald-600" />
+              Información del Vehículo
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="plate">Placa *</Label>
+              <Input
+                id="plate"
+                placeholder="ABC-123"
+                required
+                className="uppercase"
+                value={form.vehiclePlate}
+                onChange={e => setForm(f => ({ ...f, vehiclePlate: e.target.value }))}
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="brand">Marca *</Label>
+                <BrandAutocomplete
+                  id="brand"
+                  value={form.vehicleBrand}
+                  onChange={(val) => setForm(f => ({ ...f, vehicleBrand: val }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="model">Modelo *</Label>
+                <ModelAutocomplete
+                  id="model"
+                  brandName={form.vehicleBrand}
+                  value={form.vehicleModel}
+                  onChange={(val) => setForm(f => ({ ...f, vehicleModel: val }))}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Sección Problema */}
+        <Card className="shadow-sm border-slate-200">
+          <CardHeader className="bg-slate-50/50 pb-4 border-b">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <TicketIcon className="h-5 w-5 text-amber-600" />
+              Detalles del Servicio
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Asunto / Título *</Label>
+              <Input
+                id="title"
+                placeholder="Ej: Cambio de aceite, Ruido en frenos..."
+                required
+                value={form.issueTitle}
+                onChange={e => setForm(f => ({ ...f, issueTitle: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="desc">Descripción detallada *</Label>
+              <Textarea
+                id="desc"
+                placeholder="Describe el problema o el servicio solicitado..."
+                required
+                rows={4}
+                value={form.issueDesc}
+                onChange={e => setForm(f => ({ ...f, issueDesc: e.target.value }))}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Button
+          type="submit"
+          disabled={loading}
+          className="w-full h-12 text-lg shadow-md bg-blue-600 hover:bg-blue-700 transition-all font-bold"
+        >
+          {loading ? (
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              Procesando...
+            </div>
+          ) : "Registrar Ticket"}
+        </Button>
+      </form>
     </div>
   );
 };
