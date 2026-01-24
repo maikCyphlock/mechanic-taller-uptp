@@ -63,14 +63,11 @@ export async function getDataProvider(): Promise<DataProvider> {
 
         try {
             if (mode === 'odoo') {
-                // Use dynamic import() for ESM compatibility
-                const mod = await import('./odoo-provider');
-                const OdooClass = mod.OdooDataProvider || mod.default || mod;
-                providerInstance = new OdooClass();
+                const { OdooDataProvider } = await import('./odoo-provider');
+                providerInstance = new OdooDataProvider();
             } else {
-                const mod = await import('./local-provider');
-                const LocalClass = mod.LocalDataProvider || mod.default || mod;
-                providerInstance = new LocalClass();
+                const { LocalDataProvider } = await import('./local-provider');
+                providerInstance = new LocalDataProvider();
             }
         } catch (error) {
             console.error(`[DataProvider] Failed to load ${mode} provider:`, error);

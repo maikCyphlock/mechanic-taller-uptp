@@ -72,10 +72,17 @@ export const userRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, password, emailVerified, ...rest } = input;
+      const { id, password, emailVerified, role: inputRole, ...rest } = input;
+
+      let normalizedRole: string | undefined = inputRole;
+      if (normalizedRole === "GERENTE") normalizedRole = "manager";
+      if (normalizedRole === "CLIENTE") normalizedRole = "client";
+      if (normalizedRole === "SUPERADMIN") normalizedRole = "admin";
+      if (normalizedRole === "OTRO") normalizedRole = "user";
 
       const updateData: Partial<typeof users.$inferInsert> = {
         ...rest,
+        ...(normalizedRole !== undefined && { role: normalizedRole as any }), // Only add role if it was provided in input
         updatedAt: new Date(),
       };
 

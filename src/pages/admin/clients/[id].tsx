@@ -35,8 +35,7 @@ const AdminClientDetails: NextPage = () => {
             if (foundClient) {
                 setClient(foundClient);
                 setVehicles(cachedVehicles.filter(v =>
-                    (Array.isArray(v.owner) ? v.owner[0] : v.owner?.id) === cId ||
-                    v.owner_id === cId
+                    (Array.isArray(v.owner) ? v.owner[0] : v.owner?.id) === cId
                 ));
                 setTickets(cachedTickets.filter(t =>
                     (Array.isArray(t.client_id) ? t.client_id[0] : t.client_id) === cId

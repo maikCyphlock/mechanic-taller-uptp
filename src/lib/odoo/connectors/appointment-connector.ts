@@ -62,7 +62,7 @@ function mapOdooStatusToLocal(odooStatus: string): any {
  */
 async function mapLocalAppointmentToOdoo(localApp: typeof appointment.$inferSelect) {
     // Buscar odooId del vehículo
-    let odooVehicleId = false;
+    let odooVehicleId: number | false = false;
     if (localApp.vehicleId) {
         const v = await db.query.vehicle.findFirst({
             where: eq(vehicle.id, localApp.vehicleId),

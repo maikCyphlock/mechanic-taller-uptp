@@ -277,7 +277,7 @@ export class LocalDataProvider implements DataProvider {
         const whereConditions: any[] = [isNull(ticket.delete_at)];
 
         if (filters?.status) {
-            whereConditions.push(eq(ticket.status, filters.status.toUpperCase()));
+            whereConditions.push(eq(ticket.status, filters.status.toUpperCase() as any));
         }
         if (filters?.clientId) {
             whereConditions.push(eq(ticket.clientId, String(filters.clientId)));

@@ -82,8 +82,8 @@ export interface UpdateVehicleInput {
 
 export type TicketStatus =
     | 'abierto'
-    | 'en_progreso'
-    | 'esperando_repuestos'
+    | 'en_proceso'
+    | 'aprobado'
     | 'cerrado'
     | 'cancelado';
 

@@ -325,6 +325,7 @@ export function useDataCache() {
         providerName,
         // Actions
         syncFromAPI,
+        syncFromOdoo: syncFromAPI, // Alias for backward compatibility
         refresh: () => syncFromAPI(true),
         // Search helpers
         searchClients,
